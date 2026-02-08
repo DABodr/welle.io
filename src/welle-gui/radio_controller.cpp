@@ -894,7 +894,7 @@ void CRadioController::displayDateTime(const dab_date_time_t& dateTime)
 
     // int OffsetFromUtc = dateTime.hourOffset * 3600 +
     //                     dateTime.minuteOffset * 60;
-    currentDateTime.setTimeZone(QTimeZone::UTC);
+    currentDateTime.setTimeZone(QTimeZone::utc());
 
     emit dateTimeChanged(currentDateTime);
 }
