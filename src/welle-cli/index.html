@@ -3,8 +3,11 @@
     <head>
         <title>welle-cli webfrontend</title>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
         <link rel="icon" type="image/x-icon" href="favicon.ico" />
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* ── Reset & Base ─────────────────────────────────── */
 *, *::before, *::after {
@@ -16,10 +19,11 @@
 body {
     background-color: #0f1117;
     color: #e0e0e6;
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    font-size: 14px;
-    line-height: 1.5;
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
     min-height: 100vh;
+    -webkit-text-size-adjust: 100%;
 }
 
 a {
@@ -33,14 +37,14 @@ a:hover {
 }
 
 h1 {
-    font-size: 1.6rem;
-    font-weight: 600;
+    font-size: 1.75rem;
+    font-weight: 700;
     color: #f0f0f5;
     margin-bottom: 4px;
 }
 h2 {
-    font-size: 1.1rem;
-    font-weight: 500;
+    font-size: 1.15rem;
+    font-weight: 600;
     color: #c0c0cc;
     margin: 0;
 }
@@ -64,7 +68,7 @@ h2 {
 }
 
 .app-header .brand {
-    font-size: 1.3rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: #f0f0f5;
     letter-spacing: -0.02em;
@@ -93,7 +97,7 @@ h2 {
 }
 
 .control-group label {
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 500;
     color: #8888a0;
     white-space: nowrap;
@@ -105,8 +109,8 @@ select {
     border: 1px solid #3a3d4a;
     border-radius: 8px;
     color: #e0e0e6;
-    padding: 8px 32px 8px 12px;
-    font-size: 13px;
+    padding: 10px 36px 10px 14px;
+    font-size: 15px;
     font-family: inherit;
     cursor: pointer;
     transition: border-color 0.2s, box-shadow 0.2s;
@@ -124,8 +128,8 @@ select:focus {
 }
 
 input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
+    width: 22px;
+    height: 22px;
     accent-color: #6ea8fe;
     cursor: pointer;
 }
@@ -141,8 +145,8 @@ input[type="checkbox"] {
     background: #252836;
     border: 1px solid #3a3d4a;
     border-radius: 6px;
-    padding: 4px 10px;
-    font-size: 12px;
+    padding: 6px 14px;
+    font-size: 14px;
     transition: background 0.2s, border-color 0.2s;
 }
 .links-bar a:hover {
@@ -179,10 +183,10 @@ table#servicetable th {
     background: #1e2130;
     color: #9898b0;
     font-weight: 600;
-    font-size: 12px;
+    font-size: 13px;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    padding: 10px 12px;
+    padding: 12px 14px;
     text-align: left;
     border-bottom: 2px solid #2a2d3a;
 }
@@ -190,8 +194,8 @@ th#dls {
     width: 300px;
 }
 table#servicetable td {
-    padding: 10px 12px;
-    font-size: 13px;
+    padding: 12px 14px;
+    font-size: 15px;
     border-bottom: 1px solid #1e2130;
     vertical-align: middle;
 }
@@ -217,7 +221,7 @@ button {
     align-items: center;
     justify-content: center;
     gap: 6px;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 600;
     font-family: inherit;
     border-radius: 8px;
@@ -238,12 +242,12 @@ button:active {
 /* Play buttons specifically - bigger and more prominent */
 button[onclick^="setPlayerSource"] {
     background: linear-gradient(135deg, #22c55e, #16a34a);
-    padding: 12px 28px;
-    font-size: 15px;
+    padding: 14px 32px;
+    font-size: 17px;
     font-weight: 700;
     border-radius: 10px;
     box-shadow: 0 2px 12px rgba(34, 197, 94, 0.25);
-    min-width: 80px;
+    min-width: 90px;
 }
 button[onclick^="setPlayerSource"]:hover {
     background: linear-gradient(135deg, #34d76e, #22b855);
@@ -251,14 +255,14 @@ button[onclick^="setPlayerSource"]:hover {
 }
 button[onclick^="setPlayerSource"]::before {
     content: "\25B6";
-    font-size: 14px;
+    font-size: 16px;
 }
 
 /* Stop button */
 button[onclick="stopPlayer()"] {
     background: linear-gradient(135deg, #ef4444, #dc2626);
-    padding: 10px 24px;
-    font-size: 14px;
+    padding: 12px 28px;
+    font-size: 15px;
     box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
 }
 button[onclick="stopPlayer()"]:hover {
@@ -273,8 +277,8 @@ button[onclick="stopPlayer()"]::before {
 /* SLS button */
 button[onclick^="showSlide"] {
     background: linear-gradient(135deg, #a855f7, #7c3aed);
-    padding: 6px 14px;
-    font-size: 12px;
+    padding: 8px 16px;
+    font-size: 14px;
     box-shadow: 0 2px 8px rgba(168, 85, 247, 0.2);
 }
 button[onclick^="showSlide"]:hover {
@@ -323,7 +327,7 @@ button.disabled::before, button:disabled::before {
     background: #1e2130;
 }
 .block_graph .title h2 {
-    font-size: 0.95rem;
+    font-size: 1.05rem;
     font-weight: 600;
     color: #c0c0cc;
 }
@@ -345,6 +349,8 @@ canvas {
     border: 1px solid #2a2d3a;
     border-radius: 6px;
     background: #111320;
+    max-width: 100%;
+    height: auto;
 }
 
 /* ── Slide Modal ──────────────────────────────────── */
@@ -377,7 +383,10 @@ canvas {
     color: #aaa;
     padding: 16px 0;
     height: 80px;
-    font-size: 14px;
+    font-size: 15px;
+}
+.slide-modal-content {
+    max-width: 95vw;
 }
 .slideclose {
     position: absolute;
@@ -408,7 +417,7 @@ canvas {
     padding: 24px 0 12px;
     margin-top: 20px;
     border-top: 1px solid #2a2d3a;
-    font-size: 13px;
+    font-size: 14px;
     color: #6a6a80;
 }
 
@@ -428,27 +437,138 @@ canvas {
     background: #3a3d4a;
 }
 
-/* ── Responsive ───────────────────────────────────── */
-@media (max-width: 768px) {
+/* ── Responsive - Tablet ──────────────────────────── */
+@media (max-width: 900px) {
+    table#servicetable {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* ── Responsive - Mobile ─────────────────────────── */
+@media (max-width: 600px) {
+    body {
+        font-size: 15px;
+    }
     .app-container {
-        padding: 12px 10px;
+        padding: 14px 12px;
+    }
+    .app-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+    }
+    .app-header .brand {
+        font-size: 1.4rem;
+    }
+    .links-bar {
+        width: 100%;
+        gap: 8px;
+    }
+    .links-bar a {
+        flex: 1;
+        text-align: center;
+        padding: 8px 6px;
+        font-size: 13px;
     }
     .controls-bar {
         flex-direction: column;
         align-items: stretch;
-        gap: 10px;
-        padding: 12px 14px;
+        gap: 12px;
+        padding: 14px 16px;
     }
     .control-group {
         justify-content: space-between;
     }
+    .control-group label {
+        font-size: 14px;
+    }
+    select {
+        flex: 1;
+        min-width: 0;
+        padding: 12px 36px 12px 14px;
+        font-size: 16px;
+    }
+    input[type="checkbox"] {
+        width: 26px;
+        height: 26px;
+    }
+    #ensembleinfo h1 {
+        font-size: 1.3rem;
+    }
+    #ensembleinfo h2 {
+        font-size: 1rem;
+    }
     table#servicetable {
         display: block;
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    table#servicetable th {
+        padding: 10px;
+        font-size: 11px;
+        white-space: nowrap;
+    }
+    table#servicetable td {
+        padding: 10px;
+        font-size: 14px;
+        white-space: nowrap;
+    }
+    th#dls {
+        width: auto;
+    }
+    button {
+        padding: 12px 20px;
+        font-size: 15px;
     }
     button[onclick^="setPlayerSource"] {
-        padding: 14px 32px;
+        padding: 16px 36px;
+        font-size: 18px;
+        min-width: 100px;
+        border-radius: 12px;
+    }
+    button[onclick^="setPlayerSource"]::before {
+        font-size: 18px;
+    }
+    button[onclick="stopPlayer()"] {
+        padding: 14px 28px;
         font-size: 16px;
+    }
+    button[onclick^="showSlide"] {
+        padding: 10px 18px;
+        font-size: 14px;
+    }
+    .block_graph .title {
+        padding: 14px 16px;
+    }
+    .block_graph .title h2 {
+        font-size: 1rem;
+    }
+    .block_graph .data {
+        padding: 10px 12px 14px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .slide-modal {
+        padding-top: 30px;
+    }
+    .slideclose {
+        top: 10px;
+        right: 10px;
+        font-size: 30px;
+        width: 44px;
+        height: 44px;
+    }
+    #slidecaption {
+        width: 95%;
+        font-size: 14px;
+    }
+    .app-footer {
+        font-size: 13px;
+        padding: 16px 0 10px;
     }
 }
 </style>
