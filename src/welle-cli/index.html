@@ -1,76 +1,372 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
         <title>welle-cli webfrontend</title>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="icon" type="image/x-icon" href="favicon.ico" />
 <style>
-body {
-    background-color: linen;
-    font-family: Verdana, sans-serif;
-    font-size: 8pt;
+/* ── Reset & Base ─────────────────────────────────── */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
+
+body {
+    background-color: #0f1117;
+    color: #e0e0e6;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+}
+
+a {
+    color: #6ea8fe;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+a:hover {
+    color: #9ec5fe;
+    text-decoration: underline;
+}
+
+h1 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #f0f0f5;
+    margin-bottom: 4px;
+}
+h2 {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #c0c0cc;
+    margin: 0;
+}
+
+/* ── Layout ───────────────────────────────────────── */
+.app-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 20px;
+}
+
+.app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #2a2d3a;
+}
+
+.app-header .brand {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #f0f0f5;
+    letter-spacing: -0.02em;
+}
+.app-header .brand span {
+    color: #6ea8fe;
+}
+
+/* ── Controls Bar ─────────────────────────────────── */
+.controls-bar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    background: #1a1d28;
+    border: 1px solid #2a2d3a;
+    border-radius: 12px;
+    padding: 14px 20px;
+    margin-bottom: 20px;
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.control-group label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #8888a0;
+    white-space: nowrap;
+}
+
+select {
+    appearance: none;
+    background: #252836;
+    border: 1px solid #3a3d4a;
+    border-radius: 8px;
+    color: #e0e0e6;
+    padding: 8px 32px 8px 12px;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238888a0' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+}
+select:hover {
+    border-color: #6ea8fe;
+}
+select:focus {
+    outline: none;
+    border-color: #6ea8fe;
+    box-shadow: 0 0 0 3px rgba(110, 168, 254, 0.15);
+}
+
+input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #6ea8fe;
+    cursor: pointer;
+}
+
+.links-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-size: 13px;
+}
+.links-bar a {
+    background: #252836;
+    border: 1px solid #3a3d4a;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 12px;
+    transition: background 0.2s, border-color 0.2s;
+}
+.links-bar a:hover {
+    background: #2e3145;
+    border-color: #6ea8fe;
+    text-decoration: none;
+}
+
+/* ── Ensemble Info ────────────────────────────────── */
+#ensembleinfo {
+    margin-bottom: 20px;
+}
+
+#ensembleinfo h1 {
+    margin-bottom: 2px;
+}
+#ensembleinfo h2 {
+    margin-bottom: 12px;
+}
+
+/* ── Tables ───────────────────────────────────────── */
 table, th, td {
-    border: 1px solid black;
+    border: none;
     border-collapse: collapse;
 }
-th, td {
-    padding: 5px;
-    text-align: left;
-}
-th#dls {
-     width: 300px;
-}
-table#servicetable tr:nth-child(even) {
-    background-color: #eee;
-}
-table#servicetable tr:nth-child(odd) {
-    background-color: linen;
+table#servicetable {
+    width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    border: 1px solid #2a2d3a;
 }
 table#servicetable th {
-    color: white;
-    background-color: #444;
+    background: #1e2130;
+    color: #9898b0;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 2px solid #2a2d3a;
 }
-button.disabled {
-    background-color: #885555;
+th#dls {
+    width: 300px;
 }
+table#servicetable td {
+    padding: 10px 12px;
+    font-size: 13px;
+    border-bottom: 1px solid #1e2130;
+    vertical-align: middle;
+}
+table#servicetable tr:nth-child(even) {
+    background-color: #151821;
+}
+table#servicetable tr:nth-child(odd) {
+    background-color: #12141d;
+}
+table#servicetable tr:hover {
+    background-color: #1c1f2e;
+}
+
+/* ── Buttons ──────────────────────────────────────── */
 button {
-    background-color: #F44336;
+    background: linear-gradient(135deg, #4f8cff, #3366cc);
     border: none;
-    color: white;
-    padding: 2px 4px;
+    color: #fff;
+    padding: 10px 22px;
     text-align: center;
     text-decoration: none;
-    display: inline-block;
-    font-size: 7pt;
-    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+    box-shadow: 0 2px 8px rgba(79, 140, 255, 0.2);
 }
-canvas {
-    border: 1px solid #d3d3d3;
+button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(79, 140, 255, 0.35);
+    background: linear-gradient(135deg, #5e99ff, #4477dd);
+}
+button:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 4px rgba(79, 140, 255, 0.15);
+}
+
+/* Play buttons specifically - bigger and more prominent */
+button[onclick^="setPlayerSource"] {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    padding: 12px 28px;
+    font-size: 15px;
+    font-weight: 700;
+    border-radius: 10px;
+    box-shadow: 0 2px 12px rgba(34, 197, 94, 0.25);
+    min-width: 80px;
+}
+button[onclick^="setPlayerSource"]:hover {
+    background: linear-gradient(135deg, #34d76e, #22b855);
+    box-shadow: 0 4px 20px rgba(34, 197, 94, 0.4);
+}
+button[onclick^="setPlayerSource"]::before {
+    content: "\25B6";
+    font-size: 14px;
+}
+
+/* Stop button */
+button[onclick="stopPlayer()"] {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    padding: 10px 24px;
+    font-size: 14px;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
+}
+button[onclick="stopPlayer()"]:hover {
+    background: linear-gradient(135deg, #f55, #e53535);
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.35);
+}
+button[onclick="stopPlayer()"]::before {
+    content: "\25A0";
+    font-size: 12px;
+}
+
+/* SLS button */
+button[onclick^="showSlide"] {
+    background: linear-gradient(135deg, #a855f7, #7c3aed);
+    padding: 6px 14px;
+    font-size: 12px;
+    box-shadow: 0 2px 8px rgba(168, 85, 247, 0.2);
+}
+button[onclick^="showSlide"]:hover {
+    background: linear-gradient(135deg, #b566ff, #8b4ffe);
+    box-shadow: 0 4px 16px rgba(168, 85, 247, 0.35);
+}
+
+button.disabled, button:disabled {
+    background: #2a2d3a;
+    color: #55556a;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+button.disabled:hover, button:disabled:hover {
+    background: #2a2d3a;
+    box-shadow: none;
+    transform: none;
+}
+button.disabled::before, button:disabled::before {
+    content: none;
+}
+
+/* ── Graph Blocks ─────────────────────────────────── */
+.block_graph {
+    background: #1a1d28;
+    border: 1px solid #2a2d3a;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+}
+.block_graph:hover {
+    border-color: #3a3d50;
+}
+.block_graph .title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s;
+}
+.block_graph .title:hover {
+    background: #1e2130;
+}
+.block_graph .title h2 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #c0c0cc;
+}
+.block_graph .data {
+    padding: 12px 16px 16px;
+    border-top: 1px solid #2a2d3a;
 }
 .chevron {
     height: 24px;
     width: 24px;
-    display: inline-block;
-    float: left;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
+
+/* ── Canvas ───────────────────────────────────────── */
+canvas {
+    border: 1px solid #2a2d3a;
+    border-radius: 6px;
+    background: #111320;
+}
+
+/* ── Slide Modal ──────────────────────────────────── */
 .slide-modal {
     display: none;
     position: fixed;
-    z-index: 1;
-    padding-top: 100px;
+    z-index: 100;
+    padding-top: 60px;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgb(0,0,0); /* Fallback color */
-    background-color: rgba(0,0,0,0.9);
+    background-color: rgba(0, 0, 0, 0.92);
+    backdrop-filter: blur(8px);
 }
 .slide-modal-content {
     margin: auto;
     display: block;
     max-width: 700px;
+    border-radius: 8px;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
 }
 #slidecaption {
     margin: auto;
@@ -78,36 +374,111 @@ canvas {
     width: 80%;
     max-width: 700px;
     text-align: center;
-    color: #ccc;
-    padding: 10px 0;
-    height: 150px;
+    color: #aaa;
+    padding: 16px 0;
+    height: 80px;
+    font-size: 14px;
 }
 .slideclose {
     position: absolute;
     top: 15px;
     right: 35px;
     color: #f1f1f1;
-    font-size: 40px;
+    font-size: 36px;
     font-weight: bold;
-    transition: 0.3s;
+    transition: color 0.2s;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
 }
-
 .slideclose:hover,
 .slideclose:focus {
-    color: #bbb;
-    text-decoration: none;
-    cursor: pointer;
+    color: #fff;
+    background: rgba(255,255,255,0.15);
+}
+
+/* ── Footer ───────────────────────────────────────── */
+.app-footer {
+    text-align: center;
+    padding: 24px 0 12px;
+    margin-top: 20px;
+    border-top: 1px solid #2a2d3a;
+    font-size: 13px;
+    color: #6a6a80;
+}
+
+/* ── Scrollbar ────────────────────────────────────── */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #12141d;
+}
+::-webkit-scrollbar-thumb {
+    background: #2a2d3a;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #3a3d4a;
+}
+
+/* ── Responsive ───────────────────────────────────── */
+@media (max-width: 768px) {
+    .app-container {
+        padding: 12px 10px;
+    }
+    .controls-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        padding: 12px 14px;
+    }
+    .control-group {
+        justify-content: space-between;
+    }
+    table#servicetable {
+        display: block;
+        overflow-x: auto;
+    }
+    button[onclick^="setPlayerSource"] {
+        padding: 14px 32px;
+        font-size: 16px;
+    }
 }
 </style>
     </head>
     <body>
-        <div>
-            <div>
-                Channel: <select id="channelselector" name="channel"></select>
-                FFT Placement: <select id="fftwindowselector" name="fftwindow"></select>
-                Coarse freq corrector: <input type="checkbox" id="coarsecheckbox">
-                <p><a href="/mux.m3u">Get m3u playlist</a>. <a href="/mux.json">Get mux json</a>. <a href="/fic">Get FIC stream</a>.</p>
+        <div class="app-container">
+            <div class="app-header">
+                <div class="brand">welle<span>.io</span></div>
+                <div class="links-bar">
+                    <a href="/mux.m3u">M3U Playlist</a>
+                    <a href="/mux.json">MUX JSON</a>
+                    <a href="/fic">FIC Stream</a>
+                </div>
             </div>
+
+            <div class="controls-bar">
+                <div class="control-group">
+                    <label for="channelselector">Channel</label>
+                    <select id="channelselector" name="channel"></select>
+                </div>
+                <div class="control-group">
+                    <label for="fftwindowselector">FFT Placement</label>
+                    <select id="fftwindowselector" name="fftwindow"></select>
+                </div>
+                <div class="control-group">
+                    <label for="coarsecheckbox">Coarse Corrector</label>
+                    <input type="checkbox" id="coarsecheckbox">
+                </div>
+            </div>
+
             <div id="ensembleinfo"></div>
 
             <div id="block_spectrum" class="block_graph">
@@ -131,9 +502,9 @@ canvas {
             <div id="block_tii" class="block_graph">
                 <div class="title"><div class="chevron"></div><h2>TII Info</h2></div>
                 <div class="data" style="display: none" id="tiiinfo"></div>
-            </div>   
-
+            </div>
         </div>
+
         <div>
             <audio id="player">
                 <!--<source src="/mp3/0x4f57" type="audio/mpeg"> -->
@@ -146,7 +517,13 @@ canvas {
         </div>
 
         <script type="text/javascript" src="/index.js"></script>
-        
-        <div align="center"><p>welle.io and welle-cli is DAB and DAB+ software defined radio (SDR). For more information visit <a href="https://github.com/AlbrechtL/welle.io/">https://github.com/AlbrechtL/welle.io/</a> and <a href="https://www.welle.io">https://www.welle.io</a></p></div>
+
+        <div class="app-container">
+            <div class="app-footer">
+                welle.io &mdash; DAB and DAB+ Software Defined Radio (SDR).
+                <a href="https://github.com/AlbrechtL/welle.io/">GitHub</a> &middot;
+                <a href="https://www.welle.io">Website</a>
+            </div>
+        </div>
     </body>
 </html>
