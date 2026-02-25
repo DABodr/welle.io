@@ -285,21 +285,21 @@ function getSNRInfo(snr) {
 }
 
 function buildSNRWidget(snr) {
-    var maxSnr  = 30;
+    var maxSnr  = 20;
     var numSeg  = 20;
     var filled  = Math.round(Math.min(numSeg, Math.max(0, snr / maxSnr * numSeg)));
     var info    = getSNRInfo(snr);
 
-    /* Couleur par segment :
-       0-3  (0–6 dB)    rouge
-       4-7  (6–12 dB)   orange
-       8-12 (12–19.5 dB) jaune
-       13-19(19.5–30 dB) vert   */
+    /* Couleur par segment (20 dB max, 1 dB par segment) :
+       0-3  (0–4 dB)    rouge
+       4-7  (4–8 dB)    orange
+       8-11 (8–12 dB)   jaune
+       12-19(12–20 dB)  vert   */
     var segColors = [
         '#ef4444','#ef4444','#ef4444','#ef4444',
         '#f97316','#f97316','#f97316','#f97316',
-        '#eab308','#eab308','#eab308','#eab308','#eab308',
-        '#22c55e','#22c55e','#22c55e','#22c55e','#22c55e','#22c55e','#22c55e'
+        '#eab308','#eab308','#eab308','#eab308',
+        '#22c55e','#22c55e','#22c55e','#22c55e','#22c55e','#22c55e','#22c55e','#22c55e'
     ];
 
     var segs = '';
@@ -326,7 +326,7 @@ function buildSNRWidget(snr) {
     html += '</div>';
     html += '<div class="snr-segments">' + segs + '</div>';
     html += '<div class="snr-scale-row">';
-    html += '<span>0 dB</span><span>10</span><span>20</span><span>30 dB</span>';
+    html += '<span>0 dB</span><span>5</span><span>10</span><span>15</span><span>20 dB</span>';
     html += '</div>';
     html += '</div>';
     html += '</div>';
