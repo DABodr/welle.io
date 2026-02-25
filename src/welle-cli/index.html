@@ -248,6 +248,7 @@ table.stats-table th {
     letter-spacing: 0.05em;
     padding: 12px 14px 4px;
     border-bottom: none;
+    text-align: left;
 }
 table.stats-table td {
     color: #c8c8e0;
@@ -676,10 +677,11 @@ canvas {
         border: 1px solid #3a3d4a;
         border-radius: 8px;
         color: #8888a0;
-        font-size: 16px;
+        font-size: 18px;
         line-height: 1;
         box-shadow: none;
-        transform: none;
+        transform: rotate(0deg);
+        transition: transform 0.3s ease, color 0.2s, border-color 0.2s, background 0.2s;
         flex-shrink: 0;
     }
     .advanced-toggle:hover {
@@ -696,6 +698,7 @@ canvas {
         border-color: #6ea8fe;
         color: #6ea8fe;
         background: #1e2440;
+        transform: rotate(60deg);
     }
     #mux-info h1.ens-ps8,
     #mux-info h2.ens-ps16 {
@@ -903,7 +906,7 @@ canvas {
                         <label for="channelselector">Channel</label>
                         <div class="channel-ctrl">
                             <select id="channelselector" name="channel"></select>
-                            <button type="button" class="advanced-toggle" id="advancedToggle" title="Réglages avancés">▾</button>
+                            <button type="button" class="advanced-toggle" id="advancedToggle" title="Réglages avancés">⚙</button>
                         </div>
                     </div>
                     <div class="advanced-controls" id="advancedControls">
@@ -963,7 +966,6 @@ canvas {
             var ac = document.getElementById('advancedControls');
             var isOpen = ac.classList.toggle('open');
             this.classList.toggle('open', isOpen);
-            this.textContent = isOpen ? '▴' : '▾';
         });
         </script>
 
