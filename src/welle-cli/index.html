@@ -162,19 +162,27 @@ input[type="checkbox"] {
     text-decoration: none;
 }
 
-/* ── Ensemble Info ────────────────────────────────── */
+/* ── Header card (desktop: transparent, mobile: unified card) ── */
+.header-card {
+    display: contents;
+}
+
+/* ── Mux Info & Ensemble Info ─────────────────────── */
+#mux-info {
+    margin-bottom: 20px;
+}
 #ensembleinfo {
     margin-bottom: 20px;
 }
 
-#ensembleinfo h1 {
+#mux-info h1 {
     margin-bottom: 2px;
     font-size: 1.6rem;
     font-weight: 700;
     color: #22c55e;
     letter-spacing: -0.01em;
 }
-#ensembleinfo h2 {
+#mux-info h2 {
     margin-bottom: 12px;
     font-size: 1rem;
     color: #86efac;
@@ -593,6 +601,15 @@ canvas {
     .links-bar {
         display: none;
     }
+    /* ── Carte unifiée header ─────────────────────── */
+    .header-card {
+        display: block;
+        background: #1a1d28;
+        border: 1px solid #2a2d3a;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 16px;
+    }
     .controls-bar {
         display: grid;
         grid-template-columns: auto 1fr;
@@ -600,6 +617,15 @@ canvas {
         row-gap: 10px;
         column-gap: 16px;
         padding: 14px 16px;
+        background: none;
+        border: none;
+        border-radius: 0;
+        margin-bottom: 0;
+    }
+    #mux-info {
+        padding: 0 16px 16px;
+        border-top: 1px solid #2a2d3a;
+        margin-bottom: 0;
     }
     /* Chaque control-group se dissout dans la grille :
        label → colonne 1, contrôle → colonne 2 */
@@ -668,18 +694,18 @@ canvas {
         color: #6ea8fe;
         background: #1e2440;
     }
-    #ensembleinfo h1.ens-ps8,
-    #ensembleinfo h2.ens-ps16 {
+    #mux-info h1.ens-ps8,
+    #mux-info h2.ens-ps16 {
         display: none;
     }
     .ens-mobile-name {
         display: block;
-        font-size: 1.4rem;
+        font-size: 1.3rem;
         font-weight: 700;
         color: #22c55e;
         letter-spacing: -0.01em;
         word-break: break-word;
-        margin-bottom: 0.5rem;
+        margin-bottom: 10px;
     }
     .label-desktop {
         display: none;
@@ -688,27 +714,39 @@ canvas {
         display: inline;
     }
 
-    /* ── Stats table mobile : card pleine largeur ─── */
-    #ensembleinfo table.stats-table {
+    /* ── Stats table : pleine largeur, sans carte propre ─ */
+    table.stats-table {
         width: 100%;
         table-layout: fixed;
+        border: none;
+        background: none;
+        margin-bottom: 10px;
     }
-    #ensembleinfo table.stats-table th,
-    #ensembleinfo table.stats-table td {
-        padding: 4px 10px;
+    table.stats-table th,
+    table.stats-table td {
+        padding: 3px 0;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
     /* Hide less essential stats columns on mobile:
        col5=FreqCorr, col7=LTO, col8=FIC CRC, col9=Tuned at, col10=FCT0 */
-    #ensembleinfo table.stats-table th:nth-child(n+5),
-    #ensembleinfo table.stats-table td:nth-child(n+5) {
+    table.stats-table th:nth-child(n+5),
+    table.stats-table td:nth-child(n+5) {
         display: none;
     }
 
+    /* SNR widget : sans carte propre (portée par .header-card) */
+    .header-card .snr-widget {
+        background: none;
+        border: none;
+        border-radius: 0;
+        padding: 10px 0 0;
+        margin-bottom: 0;
+    }
+
     /* ── Services table: CARD LAYOUT ─────────────── */
-    #ensembleinfo table:last-of-type {
+    #ensembleinfo table {
         display: flex;
         flex-direction: column;
         align-items: stretch;
@@ -718,11 +756,11 @@ canvas {
         overflow: visible;
     }
     /* Hide table header row */
-    #ensembleinfo table:last-of-type tr:first-child {
+    #ensembleinfo table tr:first-child {
         display: none;
     }
     /* Each service row becomes a card */
-    #ensembleinfo table:last-of-type tr {
+    #ensembleinfo table tr {
         display: flex;
         flex-wrap: wrap;
         align-items: center;
@@ -735,17 +773,17 @@ canvas {
         margin-bottom: 10px;
         gap: 8px;
     }
-    #ensembleinfo table:last-of-type tr:hover {
+    #ensembleinfo table tr:hover {
         background: #1e2130;
     }
-    #ensembleinfo table:last-of-type td {
+    #ensembleinfo table td {
         border: none;
         padding: 0;
         background: none !important;
         white-space: normal;
     }
     /* Col 1: Station name - top left, takes most width */
-    #ensembleinfo table:last-of-type td:nth-child(1) {
+    #ensembleinfo table td:nth-child(1) {
         flex: 1 1 55%;
         font-weight: 600;
         font-size: 16px;
@@ -754,17 +792,17 @@ canvas {
         word-break: break-word;
     }
     /* Col 12: Play button - top right */
-    #ensembleinfo table:last-of-type td:nth-child(12) {
+    #ensembleinfo table td:nth-child(12) {
         flex: 0 0 auto;
         order: -1;
         margin-left: auto;
     }
     /* Col 3: Bitrate - hidden on mobile */
-    #ensembleinfo table:last-of-type td:nth-child(3) {
+    #ensembleinfo table td:nth-child(3) {
         display: none;
     }
     /* Col 9: DLS - full width below */
-    #ensembleinfo table:last-of-type td:nth-child(9) {
+    #ensembleinfo table td:nth-child(9) {
         flex: 1 1 100%;
         font-size: 13px;
         color: #b0b0c0;
@@ -773,14 +811,14 @@ canvas {
     }
     /* Hide non-essential columns:
        col2=SId, col4=CU, col5=Prot, col6=Tech, col7=PTy, col8=Lang, col10=Errors, col11=AudioLevel */
-    #ensembleinfo table:last-of-type td:nth-child(2),
-    #ensembleinfo table:last-of-type td:nth-child(4),
-    #ensembleinfo table:last-of-type td:nth-child(5),
-    #ensembleinfo table:last-of-type td:nth-child(6),
-    #ensembleinfo table:last-of-type td:nth-child(7),
-    #ensembleinfo table:last-of-type td:nth-child(8),
-    #ensembleinfo table:last-of-type td:nth-child(10),
-    #ensembleinfo table:last-of-type td:nth-child(11) {
+    #ensembleinfo table td:nth-child(2),
+    #ensembleinfo table td:nth-child(4),
+    #ensembleinfo table td:nth-child(5),
+    #ensembleinfo table td:nth-child(6),
+    #ensembleinfo table td:nth-child(7),
+    #ensembleinfo table td:nth-child(8),
+    #ensembleinfo table td:nth-child(10),
+    #ensembleinfo table td:nth-child(11) {
         display: none;
     }
 
@@ -855,24 +893,27 @@ canvas {
                 </div>
             </div>
 
-            <div class="controls-bar">
-                <div class="control-group">
-                    <label for="channelselector">Channel</label>
-                    <div class="channel-ctrl">
-                        <select id="channelselector" name="channel"></select>
-                        <button type="button" class="advanced-toggle" id="advancedToggle" title="Réglages avancés">▾</button>
+            <div class="header-card">
+                <div class="controls-bar">
+                    <div class="control-group">
+                        <label for="channelselector">Channel</label>
+                        <div class="channel-ctrl">
+                            <select id="channelselector" name="channel"></select>
+                            <button type="button" class="advanced-toggle" id="advancedToggle" title="Réglages avancés">▾</button>
+                        </div>
+                    </div>
+                    <div class="advanced-controls" id="advancedControls">
+                        <div class="control-group">
+                            <label for="fftwindowselector">FFT Placement</label>
+                            <select id="fftwindowselector" name="fftwindow"></select>
+                        </div>
+                        <div class="control-group">
+                            <label for="coarsecheckbox">Coarse Corrector</label>
+                            <input type="checkbox" id="coarsecheckbox">
+                        </div>
                     </div>
                 </div>
-                <div class="advanced-controls" id="advancedControls">
-                    <div class="control-group">
-                        <label for="fftwindowselector">FFT Placement</label>
-                        <select id="fftwindowselector" name="fftwindow"></select>
-                    </div>
-                    <div class="control-group">
-                        <label for="coarsecheckbox">Coarse Corrector</label>
-                        <input type="checkbox" id="coarsecheckbox">
-                    </div>
-                </div>
+                <div id="mux-info"></div>
             </div>
 
             <div id="ensembleinfo"></div>

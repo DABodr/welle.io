@@ -147,36 +147,40 @@ var ensembleInfoTimer = setInterval(populateEnsembleinfo, 1000);
 
 var currentPlayingSid = null;
 
-function ensembleInfoTemplate() {
+function muxHeaderTemplate() {
     var html = '';
-    html += ' <h1 class="ens-ps8"><abbr title="Ensemble long and short labels defined in FIG1">${label} (${shortlabel})</abbr></h1>';
-    html += ' <h2 class="ens-ps16"><abbr title="Ensemble long and short labels defined in FIG2">${fig2label}</abbr></h2>';
-    html += ' <div class="ens-mobile-name">${mobilelabel_ens}</div>';
-    html += ' <table class="stats-table" id="servicetable">';
-    html += ' <tr><th>Ensemble ID </th>';
-    html += ' <th>ECC </th>';
-    html += ' <th>SNR </th>';
-    html += ' <th>RX gain </th>';
-    html += ' <th>Freq corr</th>';
-    html += ' <th>Date</th></th>';
-    html += ' <th><abbr title="Local Time Offset">LTO</abbr></th></th>';
-    html += ' <th>FIC CRC Errors</th>';
-    html += ' <th>Tuned at</th>';
-    html += ' <th>FCT0 frame received at</th>';
-    html += ' </tr>';
-    html += ' <tr><td>${EId}</td>';
-    html += ' <td>${ecc}</td>';
-    html += ' <td>${SNR}</td>';
-    html += ' <td>${gain}</td>';
-    html += ' <td>${FrequencyCorrection}</td>';
-    html += ' <td>${year}-${month}-${day} ${hour}:${minutes} UTC</td>';
-    html += ' <td>${lto}</td>';
-    html += ' <td>${ficcrcerrors}</td>';
-    html += ' <td>${lastchannelchange}</td>';
-    html += ' <td>${lastfct0frame}</td></tr>';
-    html += ' </table>';
-    html += ' ${snr_widget}';
-    html += '<table id="servicetable">';
+    html += '<h1 class="ens-ps8"><abbr title="Ensemble long and short labels defined in FIG1">${label} (${shortlabel})</abbr></h1>';
+    html += '<h2 class="ens-ps16"><abbr title="Ensemble long and short labels defined in FIG2">${fig2label}</abbr></h2>';
+    html += '<div class="ens-mobile-name">${mobilelabel_ens}</div>';
+    html += '<table class="stats-table">';
+    html += '<tr><th>Ensemble ID</th>';
+    html += '<th>ECC</th>';
+    html += '<th>SNR</th>';
+    html += '<th>RX gain</th>';
+    html += '<th>Freq corr</th>';
+    html += '<th>Date</th>';
+    html += '<th><abbr title="Local Time Offset">LTO</abbr></th>';
+    html += '<th>FIC CRC Errors</th>';
+    html += '<th>Tuned at</th>';
+    html += '<th>FCT0 frame received at</th>';
+    html += '</tr>';
+    html += '<tr><td>${EId}</td>';
+    html += '<td>${ecc}</td>';
+    html += '<td>${SNR}</td>';
+    html += '<td>${gain}</td>';
+    html += '<td>${FrequencyCorrection}</td>';
+    html += '<td>${year}-${month}-${day} ${hour}:${minutes} UTC</td>';
+    html += '<td>${lto}</td>';
+    html += '<td>${ficcrcerrors}</td>';
+    html += '<td>${lastchannelchange}</td>';
+    html += '<td>${lastfct0frame}</td></tr>';
+    html += '</table>';
+    html += '${snr_widget}';
+    return html;
+}
+
+function ensembleInfoTemplate() {
+    var html = '<table id="servicetable">';
     html += '<tr><th>FIG1 Label (Short label)<br>FIG2 Label</th> ';
     html += '<th><abbr title="Service ID">SId</abbr></th> ';
     html += '<th>Bitrate</th> <th><abbr title="Start CU Address, used CUs">CU info</abbr></th> ';
@@ -498,6 +502,11 @@ function populateEnsembleinfo() {
         ens["lastchannelchange"] = lcc.toISOString();
         var lfct0 = new Date(data.demodulator.time_last_fct0_frame);
         ens["lastfct0frame"] = lfct0.toISOString();
+
+        var muxInfo = document.getElementById('mux-info');
+        if (muxInfo) {
+            muxInfo.innerHTML = parseTemplate(muxHeaderTemplate(), ens);
+        }
 
         var ei = document.getElementById('ensembleinfo');
         ei.innerHTML = parseTemplate(ensembleInfoTemplate(), ens);
