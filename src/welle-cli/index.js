@@ -146,6 +146,8 @@ var channelRefreshTimer = setInterval(refreshChannel, 2000);
 var ensembleInfoTimer = setInterval(populateEnsembleinfo, 1000);
 
 var currentPlayingSid = null;
+var currentSlideSid = null;
+var currentSlideLastUpdate = 0;
 
 function muxHeaderTemplate() {
     var html = '';
@@ -233,6 +235,8 @@ var slideimg = document.getElementById("slideimg");
 var slidecaption = document.getElementById("slidecaption");
 
 function showSlide(sid, last_update_time) {
+    currentSlideSid = sid;
+    currentSlideLastUpdate = last_update_time;
     slideimg.src = "slide/" + sid + "?t=" + Date.now();
     var last_update = new Date(last_update_time * 1000);
     slidecaption.innerHTML = last_update;
@@ -242,6 +246,8 @@ function showSlide(sid, last_update_time) {
 var slideclose = document.getElementsByClassName("slideclose")[0];
 slideclose.onclick = function() {
     slide_modal.style.display = "none";
+    currentSlideSid = null;
+    currentSlideLastUpdate = 0;
 }
 
 function parseTemplate(template, data) {
@@ -523,6 +529,19 @@ function populateEnsembleinfo() {
         drawCIRPeaks(data.cir_peaks);
 
         drawAudiolevels(data.services);
+
+        // Auto-refresh SLS slide if modal is open and image has been updated
+        if (currentSlideSid !== null && slide_modal.style.display === "block") {
+            for (var key in data.services) {
+                var svc = data.services[key];
+                if (parseInt(svc.sid) === currentSlideSid) {
+                    if (svc.mot && svc.mot.time > currentSlideLastUpdate) {
+                        showSlide(currentSlideSid, svc.mot.time);
+                    }
+                    break;
+                }
+            }
+        }
     };
     r.open("GET", "/mux.json", true);
     r.send()
