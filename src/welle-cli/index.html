@@ -565,25 +565,9 @@ canvas {
 .advanced-controls { display: contents; }
 
 /* ── Responsive - Tablet ──────────────────────────── */
+/* ── Responsive - Mobile ─────────────────────────── */
 @media (max-width: 900px),
        (orientation: landscape) and (max-height: 600px) and (pointer: coarse) {
-    /* First table (ensemble stats): scrollable */
-    #ensembleinfo table:first-of-type {
-        display: block;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-    /* Second table (services): scrollable on tablet */
-    #ensembleinfo table:last-of-type {
-        display: block;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-}
-
-/* ── Responsive - Mobile ─────────────────────────── */
-@media (max-width: 600px),
-       (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
     html {
         overflow-x: hidden;
     }
