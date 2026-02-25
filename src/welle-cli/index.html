@@ -572,7 +572,7 @@ canvas {
 .ens-mobile-name { display: none; }
 
 /* ── Advanced controls (desktop: always visible inline) ── */
-.params-group { display: none; }
+.channel-ctrl { display: flex; align-items: center; gap: 8px; }
 .advanced-toggle { display: none; }
 .advanced-controls { display: contents; }
 
@@ -648,9 +648,11 @@ canvas {
     #channelselector {
         width: auto;
     }
-    /* Groupe Parameters visible sur mobile */
-    .params-group {
-        display: contents;
+    .channel-ctrl {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        justify-self: start;
     }
     input[type="checkbox"] {
         width: 26px;
@@ -669,14 +671,15 @@ canvas {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 100%;
+        width: auto;
         padding: 12px 14px;
         background: #252836;
         border: 1px solid #3a3d4a;
         border-radius: 8px;
         color: #8888a0;
-        font-size: 18px;
+        font-size: 14px;
         font-weight: 500;
+        white-space: nowrap;
         line-height: 1;
         box-shadow: none;
         transition: color 0.2s, border-color 0.2s, background 0.2s;
@@ -745,6 +748,12 @@ canvas {
         border-radius: 0;
         padding: 10px 0 0;
         margin-bottom: 0;
+        flex-direction: column;
+        align-items: center;
+    }
+    .header-card .snr-bar-zone {
+        width: 100%;
+        min-width: 0;
     }
 
     /* ── Services table: CARD LAYOUT ─────────────── */
@@ -899,11 +908,10 @@ canvas {
                 <div class="controls-bar">
                     <div class="control-group">
                         <label for="channelselector">Channel</label>
-                        <select id="channelselector" name="channel"></select>
-                    </div>
-                    <div class="control-group params-group">
-                        <label>Parameters</label>
-                        <button type="button" class="advanced-toggle" id="advancedToggle" title="Réglages avancés">⚙</button>
+                        <div class="channel-ctrl">
+                            <select id="channelselector" name="channel"></select>
+                            <button type="button" class="advanced-toggle" id="advancedToggle" title="Réglages avancés">Param. ⚙</button>
+                        </div>
                     </div>
                     <div class="advanced-controls" id="advancedControls">
                         <div class="control-group">
