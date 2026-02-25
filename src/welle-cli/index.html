@@ -81,6 +81,7 @@ h2 {
 .controls-bar {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     flex-wrap: wrap;
     gap: 16px;
     background: #1a1d28;
@@ -127,6 +128,12 @@ select:focus {
     box-shadow: 0 0 0 3px rgba(110, 168, 254, 0.15);
 }
 
+/* Le sélecteur de canal est court (ex: "5A") : pas d'étirement */
+#channelselector {
+    width: auto;
+    flex: 0 0 auto;
+}
+
 input[type="checkbox"] {
     width: 22px;
     height: 22px;
@@ -162,9 +169,15 @@ input[type="checkbox"] {
 
 #ensembleinfo h1 {
     margin-bottom: 2px;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #22c55e;
+    letter-spacing: -0.01em;
 }
 #ensembleinfo h2 {
     margin-bottom: 12px;
+    font-size: 1rem;
+    color: #86efac;
 }
 
 /* ── Tables ───────────────────────────────────────── */
@@ -174,7 +187,9 @@ table, th, td {
 }
 table#servicetable {
     width: 100%;
-    border-radius: 10px;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 12px;
     overflow: hidden;
     margin-bottom: 16px;
     border: 1px solid #2a2d3a;
@@ -209,6 +224,36 @@ table#servicetable tr:hover {
     background-color: #1c1f2e;
 }
 
+/* ── Stats table (Ensemble ID, ECC…) card style ─── */
+table.stats-table {
+    background: #1a1d28;
+}
+table.stats-table th {
+    background: transparent;
+    color: #6868a0;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 12px 14px 4px;
+    border-bottom: none;
+}
+table.stats-table td {
+    color: #c8c8e0;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 4px 14px 12px;
+    border-bottom: none;
+    background: transparent;
+}
+table.stats-table tr:nth-child(even),
+table.stats-table tr:nth-child(odd) {
+    background: transparent;
+}
+table.stats-table tr:hover {
+    background: transparent;
+}
+
 /* ── Buttons ──────────────────────────────────────── */
 button {
     background: linear-gradient(135deg, #4f8cff, #3366cc);
@@ -239,30 +284,31 @@ button:active {
     box-shadow: 0 1px 4px rgba(79, 140, 255, 0.15);
 }
 
-/* Play buttons specifically - bigger and more prominent */
+/* Play buttons */
 button[onclick^="setPlayerSource"] {
     background: linear-gradient(135deg, #22c55e, #16a34a);
-    padding: 14px 32px;
-    font-size: 17px;
-    font-weight: 700;
-    border-radius: 10px;
-    box-shadow: 0 2px 12px rgba(34, 197, 94, 0.25);
-    min-width: 90px;
+    padding: 8px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(34, 197, 94, 0.2);
+    min-width: 70px;
 }
 button[onclick^="setPlayerSource"]:hover {
     background: linear-gradient(135deg, #34d76e, #22b855);
-    box-shadow: 0 4px 20px rgba(34, 197, 94, 0.4);
+    box-shadow: 0 4px 14px rgba(34, 197, 94, 0.35);
 }
 button[onclick^="setPlayerSource"]::before {
     content: "\25B6";
-    font-size: 16px;
+    font-size: 12px;
 }
 
 /* Stop button */
 button[onclick="stopPlayer()"] {
     background: linear-gradient(135deg, #ef4444, #dc2626);
-    padding: 12px 28px;
-    font-size: 15px;
+    padding: 8px 18px;
+    font-size: 14px;
+    min-width: 70px;
     box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
 }
 button[onclick="stopPlayer()"]:hover {
@@ -411,6 +457,78 @@ canvas {
     background: rgba(255,255,255,0.15);
 }
 
+/* ── SNR Widget ───────────────────────────────────── */
+.snr-widget {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: #1a1d28;
+    border: 1px solid #2a2d3a;
+    border-radius: 12px;
+    padding: 14px 20px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+.snr-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 90px;
+}
+.snr-label-text {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #8888a0;
+    margin-bottom: 4px;
+}
+.snr-value-text {
+    font-size: 1.85rem;
+    font-weight: 700;
+    color: #f0f0f5;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+}
+.snr-bar-zone {
+    flex: 1;
+    min-width: 200px;
+}
+.snr-bar-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 8px;
+}
+.snr-quality-badge {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 3px 14px;
+    border-radius: 20px;
+    letter-spacing: 0.03em;
+}
+.snr-segments {
+    display: flex;
+    gap: 3px;
+    height: 22px;
+}
+.snr-seg {
+    flex: 1;
+    border-radius: 3px;
+    transition: background 0.3s;
+}
+.snr-seg-off {
+    background: #1a1e30;
+    border: 1px solid #22253a;
+}
+.snr-scale-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+    font-size: 11px;
+    color: #44445a;
+}
+
 /* ── Footer ───────────────────────────────────────── */
 .app-footer {
     text-align: center;
@@ -436,6 +554,15 @@ canvas {
 ::-webkit-scrollbar-thumb:hover {
     background: #3a3d4a;
 }
+
+/* Labels desktop/mobile */
+.label-mobile { display: none; }
+.ens-mobile-name { display: none; }
+
+/* ── Advanced controls (desktop: always visible inline) ── */
+.channel-ctrl { display: flex; align-items: center; gap: 8px; }
+.advanced-toggle { display: none; }
+.advanced-controls { display: contents; }
 
 /* ── Responsive - Tablet ──────────────────────────── */
 @media (max-width: 900px) {
@@ -478,62 +605,119 @@ canvas {
         font-size: 1.4rem;
     }
     .links-bar {
-        width: 100%;
-        gap: 8px;
-    }
-    .links-bar a {
-        flex: 1;
-        text-align: center;
-        padding: 10px 6px;
-        font-size: 13px;
+        display: none;
     }
     .controls-bar {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 12px;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        align-items: center;
+        row-gap: 10px;
+        column-gap: 16px;
         padding: 14px 16px;
     }
+    /* Chaque control-group se dissout dans la grille :
+       label → colonne 1, contrôle → colonne 2 */
     .control-group {
-        justify-content: space-between;
+        display: contents;
     }
     .control-group label {
         font-size: 14px;
+        white-space: nowrap;
     }
     select {
-        flex: 1;
         min-width: 0;
         padding: 12px 36px 12px 14px;
         font-size: 16px;
     }
+    /* channel-ctrl est maintenant le grid item col 2 */
+    .channel-ctrl {
+        justify-self: start;
+    }
+    #channelselector {
+        width: auto;
+    }
     input[type="checkbox"] {
         width: 26px;
         height: 26px;
+        justify-self: start;
     }
-    #ensembleinfo h1 {
-        font-size: 1.3rem;
+    /* ── Zone avancée déroulante ─────────────────────── */
+    .advanced-controls {
+        display: none;
+    }
+    .advanced-controls.open {
+        display: contents;
+    }
+    /* Bouton toggle réglages avancés */
+    .advanced-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        min-width: 0;
+        background: #252836;
+        border: 1px solid #3a3d4a;
+        border-radius: 8px;
+        color: #8888a0;
+        font-size: 16px;
+        line-height: 1;
+        box-shadow: none;
+        transform: none;
+        flex-shrink: 0;
+    }
+    .advanced-toggle:hover {
+        background: #2e3145;
+        border-color: #6ea8fe;
+        color: #6ea8fe;
+        transform: none;
+        box-shadow: none;
+    }
+    .advanced-toggle::before {
+        content: none;
+    }
+    .advanced-toggle.open {
+        border-color: #6ea8fe;
+        color: #6ea8fe;
+        background: #1e2440;
+    }
+    #ensembleinfo h1.ens-ps8,
+    #ensembleinfo h2.ens-ps16 {
+        display: none;
+    }
+    .ens-mobile-name {
+        display: block;
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #22c55e;
+        letter-spacing: -0.01em;
         word-break: break-word;
+        margin-bottom: 0.5rem;
     }
-    #ensembleinfo h2 {
-        font-size: 1rem;
+    .label-desktop {
+        display: none;
+    }
+    .label-mobile {
+        display: inline;
     }
 
-    /* ── Ensemble stats table: compact key-value ──── */
-    #ensembleinfo table:first-of-type {
-        display: block;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        border: none;
+    /* ── Stats table mobile : card pleine largeur ─── */
+    #ensembleinfo table.stats-table {
+        width: 100%;
+        table-layout: fixed;
     }
-    #ensembleinfo table:first-of-type th,
-    #ensembleinfo table:first-of-type td {
-        font-size: 12px;
-        padding: 6px 8px;
+    #ensembleinfo table.stats-table th,
+    #ensembleinfo table.stats-table td {
+        padding: 4px 10px;
         white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     /* Hide less essential stats columns on mobile:
        col5=FreqCorr, col7=LTO, col8=FIC CRC, col9=Tuned at, col10=FCT0 */
-    #ensembleinfo table:first-of-type th:nth-child(n+5),
-    #ensembleinfo table:first-of-type td:nth-child(n+5) {
+    #ensembleinfo table.stats-table th:nth-child(n+5),
+    #ensembleinfo table.stats-table td:nth-child(n+5) {
         display: none;
     }
 
@@ -583,12 +767,9 @@ canvas {
         order: -1;
         margin-left: auto;
     }
-    /* Col 3: Bitrate - small info below name */
+    /* Col 3: Bitrate - hidden on mobile */
     #ensembleinfo table:last-of-type td:nth-child(3) {
-        flex: 0 0 auto;
-        font-size: 13px;
-        color: #8888a0;
-        order: 2;
+        display: none;
     }
     /* Col 9: DLS - full width below */
     #ensembleinfo table:last-of-type td:nth-child(9) {
@@ -617,20 +798,18 @@ canvas {
         font-size: 15px;
     }
     button[onclick^="setPlayerSource"] {
-        padding: 14px 28px;
-        font-size: 17px;
-        min-width: 90px;
-        border-radius: 12px;
+        padding: 9px 18px;
+        font-size: 14px;
+        min-width: 70px;
+        border-radius: 8px;
     }
     button[onclick^="setPlayerSource"]::before {
-        font-size: 16px;
+        font-size: 12px;
     }
     button[onclick="stopPlayer()"] {
-        padding: 12px 24px;
-        font-size: 15px;
-        display: block;
-        width: 100%;
-        margin-bottom: 12px;
+        padding: 9px 18px;
+        font-size: 14px;
+        border-radius: 8px;
     }
     button[onclick^="showSlide"] {
         padding: 8px 14px;
@@ -687,15 +866,20 @@ canvas {
             <div class="controls-bar">
                 <div class="control-group">
                     <label for="channelselector">Channel</label>
-                    <select id="channelselector" name="channel"></select>
+                    <div class="channel-ctrl">
+                        <select id="channelselector" name="channel"></select>
+                        <button type="button" class="advanced-toggle" id="advancedToggle" title="Réglages avancés">▾</button>
+                    </div>
                 </div>
-                <div class="control-group">
-                    <label for="fftwindowselector">FFT Placement</label>
-                    <select id="fftwindowselector" name="fftwindow"></select>
-                </div>
-                <div class="control-group">
-                    <label for="coarsecheckbox">Coarse Corrector</label>
-                    <input type="checkbox" id="coarsecheckbox">
+                <div class="advanced-controls" id="advancedControls">
+                    <div class="control-group">
+                        <label for="fftwindowselector">FFT Placement</label>
+                        <select id="fftwindowselector" name="fftwindow"></select>
+                    </div>
+                    <div class="control-group">
+                        <label for="coarsecheckbox">Coarse Corrector</label>
+                        <input type="checkbox" id="coarsecheckbox">
+                    </div>
                 </div>
             </div>
 
@@ -737,6 +921,14 @@ canvas {
         </div>
 
         <script type="text/javascript" src="/index.js"></script>
+        <script>
+        document.getElementById('advancedToggle').addEventListener('click', function() {
+            var ac = document.getElementById('advancedControls');
+            var isOpen = ac.classList.toggle('open');
+            this.classList.toggle('open', isOpen);
+            this.textContent = isOpen ? '▴' : '▾';
+        });
+        </script>
 
         <div class="app-container">
             <div class="app-footer">

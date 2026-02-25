@@ -94,6 +94,7 @@ window.onload = function() {
 
     ch.onchange = function() {
         var channel = document.getElementById("channelselector").value;
+        currentPlayingSid = null;
         var xhr = new XMLHttpRequest();
         xhr.open("POST", '/channel', true);
         xhr.setRequestHeader("Content-type", "text/plain");
@@ -144,12 +145,14 @@ var channelRefreshTimer = setInterval(refreshChannel, 2000);
 
 var ensembleInfoTimer = setInterval(populateEnsembleinfo, 1000);
 
+var currentPlayingSid = null;
+
 function ensembleInfoTemplate() {
     var html = '';
-    html += ' <h1><abbr title="Ensemble long and short labels defined in FIG1">${label} (${shortlabel})</abbr></h1>';
-    html += ' <h2><abbr title="Ensemble long and short labels defined in FIG2">${fig2label}</abbr></h2>';
-    html += ' <div align="right"><p><abbr title="${hw_name}, ${sw_name}">This is welle-cli build version ${version}</abbr></p></div>';
-    html += ' <table id="servicetable">';
+    html += ' <h1 class="ens-ps8"><abbr title="Ensemble long and short labels defined in FIG1">${label} (${shortlabel})</abbr></h1>';
+    html += ' <h2 class="ens-ps16"><abbr title="Ensemble long and short labels defined in FIG2">${fig2label}</abbr></h2>';
+    html += ' <div class="ens-mobile-name">${mobilelabel_ens}</div>';
+    html += ' <table class="stats-table" id="servicetable">';
     html += ' <tr><th>Ensemble ID </th>';
     html += ' <th>ECC </th>';
     html += ' <th>SNR </th>';
@@ -171,8 +174,8 @@ function ensembleInfoTemplate() {
     html += ' <td>${ficcrcerrors}</td>';
     html += ' <td>${lastchannelchange}</td>';
     html += ' <td>${lastfct0frame}</td></tr>';
-    html += ' </table><br>    <button type=button onclick="stopPlayer()">Stop</button><br><br>';
-    html += '';
+    html += ' </table>';
+    html += ' ${snr_widget}';
     html += '<table id="servicetable">';
     html += '<tr><th>FIG1 Label (Short label)<br>FIG2 Label</th> ';
     html += '<th><abbr title="Service ID">SId</abbr></th> ';
@@ -188,12 +191,12 @@ function ensembleInfoTemplate() {
 }
 
 function serviceTemplate() {
-    var html = '<tr><td>${label} (${shortlabel})<br>${fig2label}</td> <td>${SId}</td> <td>${bitrate}&nbsp;kbps</td> <td>${sad_cu}</td> <td>${protection}</td>';
+    var html = '<tr><td><span class="label-desktop">${label} (${shortlabel})<br>${fig2label}</span><span class="label-mobile">${mobilelabel}</span></td> <td>${SId}</td> <td>${bitrate}&nbsp;kbps</td> <td>${sad_cu}</td> <td>${protection}</td>';
     html += '<td>${techdetails}</td>';
     html += '<td>${pty}</td> <td>${language}<br>${subchannel_language}</td> <td><i>${dls}</i></td>';
     html += '<td>${errorcounters}</td>';
     html += '<td><canvas id="${canvasid}" width="64" height="12"></canvas></td>';
-    html += '<td><button type=button ${buttondisabled} class="${buttonclass}" onclick="setPlayerSource(${SId})">Play</button></td>';
+    html += '<td>${playbutton}</td>';
     html += '</tr>';
     return html;
 }
@@ -210,11 +213,13 @@ function playerLoad() {
 }
 
 function setPlayerSource(sid) {
+    currentPlayingSid = sid;
     document.getElementById("player").src = "/stream/" + sid;
     playerLoad();
 }
 
 function stopPlayer() {
+    currentPlayingSid = null;
     document.getElementById("player").src = "";
     playerLoad();
 }
@@ -224,7 +229,7 @@ var slideimg = document.getElementById("slideimg");
 var slidecaption = document.getElementById("slidecaption");
 
 function showSlide(sid, last_update_time) {
-    slideimg.src = "slide/" + sid + "?cachebreak=" + last_update_time;
+    slideimg.src = "slide/" + sid + "?t=" + Date.now();
     var last_update = new Date(last_update_time * 1000);
     slidecaption.innerHTML = last_update;
     slide_modal.style.display = "block";
@@ -259,6 +264,63 @@ function drawCIRPeaks(cirs) {
         ctx.fillText(i, cirs[cir].index/4, h);
         i++;
     }
+}
+
+function getSNRInfo(snr) {
+    if (snr < 4)  return {quality: "No signal", color: "#ef4444", bg: "rgba(239,68,68,0.13)",  border: "rgba(239,68,68,0.35)"};
+    if (snr < 8)  return {quality: "Poor",      color: "#f97316", bg: "rgba(249,115,22,0.13)", border: "rgba(249,115,22,0.35)"};
+    if (snr < 12) return {quality: "Marginal",  color: "#eab308", bg: "rgba(234,179,8,0.13)",  border: "rgba(234,179,8,0.35)"};
+    if (snr < 18) return {quality: "Good",      color: "#84cc16", bg: "rgba(132,204,22,0.13)", border: "rgba(132,204,22,0.35)"};
+    return             {quality: "Excellent",  color: "#22c55e", bg: "rgba(34,197,94,0.13)",  border: "rgba(34,197,94,0.35)"};
+}
+
+function buildSNRWidget(snr) {
+    var maxSnr  = 30;
+    var numSeg  = 20;
+    var filled  = Math.round(Math.min(numSeg, Math.max(0, snr / maxSnr * numSeg)));
+    var info    = getSNRInfo(snr);
+
+    /* Couleur par segment :
+       0-3  (0–6 dB)    rouge
+       4-7  (6–12 dB)   orange
+       8-12 (12–19.5 dB) jaune
+       13-19(19.5–30 dB) vert   */
+    var segColors = [
+        '#ef4444','#ef4444','#ef4444','#ef4444',
+        '#f97316','#f97316','#f97316','#f97316',
+        '#eab308','#eab308','#eab308','#eab308','#eab308',
+        '#22c55e','#22c55e','#22c55e','#22c55e','#22c55e','#22c55e','#22c55e'
+    ];
+
+    var segs = '';
+    for (var i = 0; i < numSeg; i++) {
+        if (i < filled) {
+            var c = segColors[i];
+            segs += '<div class="snr-seg" style="background:' + c +
+                    ';box-shadow:0 0 6px ' + c + '99"></div>';
+        } else {
+            segs += '<div class="snr-seg snr-seg-off"></div>';
+        }
+    }
+
+    var html = '<div class="snr-widget">';
+    html += '<div class="snr-info">';
+    html += '<span class="snr-label-text">SNR</span>';
+    html += '<span class="snr-value-text">' + snr.toFixed(1) + '&thinsp;dB</span>';
+    html += '</div>';
+    html += '<div class="snr-bar-zone">';
+    html += '<div class="snr-bar-header">';
+    html += '<span class="snr-quality-badge" style="color:' + info.color +
+            ';background:' + info.bg + ';border:1px solid ' + info.border + '">' +
+            info.quality + '</span>';
+    html += '</div>';
+    html += '<div class="snr-segments">' + segs + '</div>';
+    html += '<div class="snr-scale-row">';
+    html += '<span>0 dB</span><span>10</span><span>20</span><span>30 dB</span>';
+    html += '</div>';
+    html += '</div>';
+    html += '</div>';
+    return html;
 }
 
 function drawAudiolevels(services) {
@@ -327,6 +389,7 @@ function populateEnsembleinfo() {
             s["label"] = service.label.label;
             s["fig2label"] = service.label.fig2label;
             s["shortlabel"] = service.label.shortlabel;
+            s["mobilelabel"] = service.label.fig2label || service.label.label;
             s["SId"] = service.sid;
             s["buttondisabled"] = "disabled";
             s["buttonclass"] = "disabled";
@@ -393,6 +456,14 @@ function populateEnsembleinfo() {
                 s["errorcounters"] = "";
             }
 
+            if (parseInt(service.sid) === currentPlayingSid) {
+                s["playbutton"] = '<button type=button onclick="stopPlayer()">Stop</button>';
+            } else if (s["buttondisabled"] === "") {
+                s["playbutton"] = '<button type=button onclick="setPlayerSource(' + service.sid + ')">Play</button>';
+            } else {
+                s["playbutton"] = '<button type=button disabled class="disabled">Play</button>';
+            }
+
             servicehtml += parseTemplate(serviceTemplate(), s)
         }
 
@@ -400,6 +471,7 @@ function populateEnsembleinfo() {
         ens["label"] = data.ensemble.label.label;
         ens["fig2label"] = data.ensemble.label.fig2label;
         ens["shortlabel"] = data.ensemble.label.shortlabel;
+        ens["mobilelabel_ens"] = data.ensemble.label.fig2label || data.ensemble.label.label;
         ens["EId"] = data.ensemble.id;
         ens["ecc"] = data.ensemble.ecc;
 
@@ -418,6 +490,7 @@ function populateEnsembleinfo() {
         ens["hw_name"] = data.receiver.hardware.name;
         ens["sw_name"] = data.receiver.software.name;
         ens["SNR"] = data.demodulator.snr.toFixed(1);
+        ens["snr_widget"] = buildSNRWidget(data.demodulator.snr);
         ens["FrequencyCorrection"] = data.demodulator.frequencycorrection;
         ens["services"] = servicehtml;
         ens["ficcrcerrors"] = data.demodulator.fic.numcrcerrors;
