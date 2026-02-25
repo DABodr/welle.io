@@ -565,7 +565,8 @@ canvas {
 .advanced-controls { display: contents; }
 
 /* ── Responsive - Tablet ──────────────────────────── */
-@media (max-width: 900px) {
+@media (max-width: 900px),
+       (orientation: landscape) and (max-height: 600px) and (pointer: coarse) {
     /* First table (ensemble stats): scrollable */
     #ensembleinfo table:first-of-type {
         display: block;
@@ -581,7 +582,8 @@ canvas {
 }
 
 /* ── Responsive - Mobile ─────────────────────────── */
-@media (max-width: 600px) {
+@media (max-width: 600px),
+       (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
     html {
         overflow-x: hidden;
     }
