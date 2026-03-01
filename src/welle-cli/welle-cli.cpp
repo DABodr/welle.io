@@ -49,6 +49,7 @@
 #  include "welle-cli/alsa-output.h"
 #endif
 #include "welle-cli/webradiointerface.h"
+#include "welle-cli/channelscanner.h"
 #include "welle-cli/tests.h"
 #include "backend/radio-receiver.h"
 #include "input/input_factory.h"
@@ -286,6 +287,8 @@ struct options_t {
     int num_decoders_in_carousel = 0;
     bool carousel_pad = false;
     int web_port = -1; // positive value means enable
+    bool scan_mode = false;
+    int scan_timeout = 10;
     list<int> tests;
     string outputcodec = "";
 
@@ -342,6 +345,13 @@ static void usage()
     "    -T            Disable TII decoding to reduce CPU usage." << endl <<
     "    -O            Output Codec for web streaming : mp3 (default), flac (lossless)" << endl <<
     endl <<
+    "Scanning:" << endl <<
+    "    -S            Scan all Band III and Band L channels and print a JSON" << endl <<
+    "                  report of all discovered DAB ensembles to stdout." << endl <<
+    "    -X secs       Timeout per channel when a signal is detected (default: 10)." << endl <<
+    "                  Lower values speed up the scan but may miss slow-locking" << endl <<
+    "                  ensembles." << endl <<
+    endl <<
     "Other options:" << endl <<
     "    -t test_id    Run test <test_id>." << endl <<
     "                  To understand what the tests do, please see source code." << endl <<
@@ -365,6 +375,12 @@ static void usage()
     endl <<
     "welle-cli -c 10B -D " << endl <<
     "    Dump FIC and all programmes of channel 10B to files." << endl <<
+    endl <<
+    "welle-cli -S" << endl <<
+    "    Scan all channels and print a JSON report of discovered ensembles." << endl <<
+    endl <<
+    "welle-cli -S -X 5" << endl <<
+    "    Scan with a 5-second timeout per channel (faster scan)." << endl <<
     endl <<
     "welle-cli -c 10B -w 8000" << endl <<
     "    Enable web server on port 8000, decode programmes on channel 10B on demand" << endl <<
@@ -409,7 +425,7 @@ options_t parse_cmdline(int argc, char **argv)
     options.rro.decodeTII = true;
 
     int opt;
-    while ((opt = getopt(argc, argv, "A:c:C:dDf:F:g:hp:O:Ps:Tt:uvw:")) != -1) {
+    while ((opt = getopt(argc, argv, "A:c:C:dDf:F:g:hp:O:Ps:St:Tuvw:X:")) != -1) {
         switch (opt) {
             case 'A':
                 options.antenna = optarg;
@@ -450,8 +466,14 @@ options_t parse_cmdline(int argc, char **argv)
             case 's':
                 options.soapySDRDriverArgs = optarg;
                 break;
+            case 'S':
+                options.scan_mode = true;
+                break;
             case 't':
                 options.tests.push_back(std::atoi(optarg));
+                break;
+            case 'X':
+                options.scan_timeout = std::atoi(optarg);
                 break;
             case 'T':
                 options.rro.decodeTII = false;
@@ -569,6 +591,11 @@ int main(int argc, char **argv)
         for (int test : options.tests) {
             tests.run_test(test);
         }
+    }
+    else if (options.scan_mode) {
+        ChannelScanner scanner;
+        scanner.run(*in, options.rro, options.scan_timeout);
+        scanner.printJsonReport(cout);
     }
     else if (options.web_port != -1) {
         using DS = WebRadioInterface::DecodeStrategy;
