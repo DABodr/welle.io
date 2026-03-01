@@ -208,8 +208,7 @@ function serviceTemplate() {
 }
 
 function tiiTemplate() {
-    var html = '<li>MainId ${pattern} SubId ${comb} ${delay} samples = <b>${delay_km} km</b>';
-    html += ' error: ${error}</li>';
+    var html = '<li>MainId ${pattern} SubId ${comb}</li>';
     return html;
 }
 
