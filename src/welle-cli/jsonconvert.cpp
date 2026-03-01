@@ -220,6 +220,7 @@ static void to_json(nlohmann::json& j, const MuxJson& mux) {
         {"cir_peaks", mux.cir_peaks}
     };
 
+    j["demodulator"]["synced"] = mux.demodulator_synced;
     j["demodulator"]["fic"]["numcrcerrors"] = mux.demodulator_fic_numcrcerrors;
     uint64_t timelastfct0_ms =
         std::chrono::duration_cast<std::chrono::milliseconds>(
