@@ -112,6 +112,11 @@ void ChannelScanner::run(InputInterface& input,
         input.setFrequency(freq);
         input.reset();
 
+        /* Give the AGC (hardware or software) time to settle after retuning.
+         * Without this delay, auto-gain receivers may not have adjusted their
+         * gain before signal detection starts, causing missed channels. */
+        this_thread::sleep_for(milliseconds(500));
+
         /* Phase 1: scan mode – quickly detect signal presence */
         bool has_signal = false;
         {
