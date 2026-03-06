@@ -523,7 +523,8 @@ function populateEnsembleinfo() {
         for (key in data.tii) {
             var tii = data.tii[key];
             var tii_key = eid + '_' + tii.pattern.toString().padStart(2,'0') + tii.comb.toString().padStart(2,'0');
-            tii.site_name = tii_db[tii_key] ? ' \u2014 ' + tii_db[tii_key] : '';
+            if (!tii_db[tii_key]) continue;
+            tii.site_name = ' \u2014 ' + tii_db[tii_key];
             tiihtml += parseTemplate(tiiTemplate(), tii);
         }
         tiihtml += "</ul>";
