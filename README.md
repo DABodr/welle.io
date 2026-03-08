@@ -24,6 +24,7 @@ Please see the project website https://www.welle.io for a user oriented document
     * [Usage](#usage-of-welle-cli)
     * [Backend options](#backend-options)
     * [Examples](#examples)
+    * [Installing welle-cli as a persistent web server](#installing-welle-cli-as-a-persistent-web-server)
   * [Limitations](#limitations)
   * [Development](#development)
   * [Acknowledgement](#acknowledgement)
@@ -288,6 +289,78 @@ Right now, `rtl_tcp` is the only driver that accepts options from the command li
     welle-cli -c 10B -p GRRIF
     welle-cli -f ./ofdm.iq -p GRRIF
     welle-cli -f ./ofdm.iq -t 1
+
+#### Installing welle-cli as a persistent web server
+
+This section explains how to run welle-cli as a background service that starts automatically at boot, with automatic restart if it crashes or hangs.
+
+##### 1. Build and install welle-cli (without Qt)
+
+```bash
+sudo apt install git build-essential libfaad-dev libmpg123-dev libfftw3-dev \
+    librtlsdr-dev libusb-1.0-0-dev libmp3lame-dev libflac++-dev xxd
+
+git clone https://github.com/DABodr/welle.io.git
+cd welle.io
+mkdir build && cd build
+cmake .. -DBUILD_WELLE_IO=OFF -DRTLSDR=ON -DFLAC=ON
+make -j$(nproc)
+sudo make install
+```
+
+##### 2. Install the systemd service
+
+```bash
+sudo cp scripts/welle-cli.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable welle-cli
+sudo systemctl start welle-cli
+```
+
+The default service file starts welle-cli on channel 9A with carousel mode and web port 7777:
+
+```
+ExecStart=/usr/local/bin/welle-cli -c 9A -PC 1 -w 7777
+```
+
+Edit `/etc/systemd/system/welle-cli.service` to change the channel or port, then run `sudo systemctl restart welle-cli`.
+
+The service is configured with `Restart=always` and `RestartSec=3`, so it will automatically restart after 3 seconds if it stops for any reason (including hangs due to the RTL-SDR driver).
+
+##### 3. Access the web interface
+
+Open `http://<server-ip>:7777/` in your browser. The interface lets you:
+- Browse all services in the DAB ensemble
+- Play audio streams
+- Monitor SNR, spectrum, constellation and CIR
+- View TII transmitter information
+- Change the DAB channel
+- Restart the service remotely (↺ button in the footer)
+
+##### 4. (Optional) Add a transmitter site database
+
+If you have a FMLIST-compatible CSV database (semicolon-separated, with columns `eid`, `tii`, `location`), you can inject it into the web interface to display transmitter site names alongside TII identifiers:
+
+```bash
+python3 scripts/generate-tii-db.py /path/to/dab-tx-list.csv
+make -j$(nproc) -C build welle-cli
+sudo make -C build install
+sudo systemctl restart welle-cli
+```
+
+> **Note:** Do not commit `src/welle-cli/index.js` after running this script if the CSV data is under copyright (e.g. FMLIST data requires prior written authorisation for public redistribution).
+
+##### Updating
+
+```bash
+cd welle.io
+git checkout src/welle-cli/index.js   # reset local TII data if previously injected
+git pull
+# re-inject TII data if needed (see step 4 above)
+make -j$(nproc) -C build welle-cli
+sudo make -C build install
+sudo systemctl restart welle-cli
+```
 
 ## Limitations
 
