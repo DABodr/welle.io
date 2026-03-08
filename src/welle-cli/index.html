@@ -983,15 +983,6 @@ canvas {
             <div id="slidecaption"></div>
         </div>
 
-        <script type="text/javascript" src="/index.js"></script>
-        <script>
-        document.getElementById('advancedToggle').addEventListener('click', function() {
-            var ac = document.getElementById('advancedControls');
-            var isOpen = ac.classList.toggle('open');
-            this.classList.toggle('open', isOpen);
-        });
-        </script>
-
         <div class="app-container">
             <div class="app-footer">
                 welle.io &mdash; DAB and DAB+ Software Defined Radio (SDR).
@@ -1000,5 +991,14 @@ canvas {
                 &middot; <button type="button" id="restartBtn" title="Redémarrer welle-cli">↺ Redémarrer</button>
             </div>
         </div>
+
+        <script type="text/javascript" src="/index.js"></script>
+        <script>
+        document.getElementById('advancedToggle').addEventListener('click', function() {
+            var ac = document.getElementById('advancedControls');
+            var isOpen = ac.classList.toggle('open');
+            this.classList.toggle('open', isOpen);
+        });
+        </script>
     </body>
 </html>
