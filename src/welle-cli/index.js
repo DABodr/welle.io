@@ -100,6 +100,12 @@ window.onload = function() {
         var xhr = new XMLHttpRequest();
         xhr.open("POST", '/channel', true);
         xhr.setRequestHeader("Content-type", "text/plain");
+        ch.disabled = true;
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4) {
+                ch.disabled = false;
+            }
+        };
         xhr.send(channel);
     };
 
