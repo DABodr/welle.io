@@ -139,6 +139,14 @@ window.onload = function() {
     }
 };
 
+    document.getElementById("restartBtn").onclick = function() {
+        if (confirm("Redémarrer welle-cli ?")) {
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", '/restart', true);
+            xhr.send();
+        }
+    };
+
 function refreshChannel() {
     var r = new XMLHttpRequest();
     r.onreadystatechange = function () {

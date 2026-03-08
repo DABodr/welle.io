@@ -549,7 +549,12 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
             }
         }
         else if (req.is_post) {
-            if (req.url == "/channel") {
+            if (req.url == "/restart") {
+                send_http_response(s, http_ok, "Restarting...\r\n");
+                raise(SIGTERM);
+                success = true;
+            }
+            else if (req.url == "/channel") {
                 success = handle_channel_post(s, req.post_data);
             }
             else if (req.url == "/fftwindowplacement") {

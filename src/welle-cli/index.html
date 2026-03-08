@@ -550,6 +550,25 @@ canvas {
     font-size: 14px;
     color: #6a6a80;
 }
+#restartBtn {
+    background: transparent;
+    border: 1px solid #3a3d4a;
+    color: #6a6a80;
+    padding: 3px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 6px;
+    box-shadow: none;
+    vertical-align: middle;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+#restartBtn:hover {
+    background: #1e2130;
+    border-color: #ef4444;
+    color: #ef4444;
+    transform: none;
+    box-shadow: none;
+}
 
 /* ── Scrollbar ────────────────────────────────────── */
 ::-webkit-scrollbar {
@@ -978,6 +997,7 @@ canvas {
                 welle.io &mdash; DAB and DAB+ Software Defined Radio (SDR).
                 <a href="https://github.com/AlbrechtL/welle.io/">GitHub</a> &middot;
                 <a href="https://www.welle.io">Website</a>
+                &middot; <button type="button" id="restartBtn" title="Redémarrer welle-cli">↺ Redémarrer</button>
             </div>
         </div>
     </body>
