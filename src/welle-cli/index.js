@@ -100,12 +100,14 @@ window.onload = function() {
         var xhr = new XMLHttpRequest();
         xhr.open("POST", '/channel', true);
         xhr.setRequestHeader("Content-type", "text/plain");
+        xhr.timeout = 8000;
         ch.disabled = true;
+        var enableCh = function() { ch.disabled = false; };
         xhr.onreadystatechange = function() {
-            if (xhr.readyState == 4) {
-                ch.disabled = false;
-            }
+            if (xhr.readyState == 4) { enableCh(); }
         };
+        xhr.ontimeout = enableCh;
+        xhr.onerror = enableCh;
         xhr.send(channel);
     };
 
