@@ -223,7 +223,7 @@ function serviceTemplate() {
     html += '<td>${pty}</td> <td>${language}<br>${subchannel_language}</td> <td><i>${dls}</i></td>';
     html += '<td>${errorcounters}</td>';
     html += '<td><canvas id="${canvasid}" width="64" height="12"></canvas></td>';
-    html += '<td>${playbutton}</td>';
+    html += '<td class="play-cell"><img id="sls-${sid}" class="sls-thumb" src="${slssrc}" alt="" onclick="showSlide(${sid_num}, ${mot_time})" style="${slsvisible}">${playbutton}</td>';
     html += '</tr>';
     return html;
 }
@@ -452,12 +452,6 @@ function populateEnsembleinfo() {
 
             s["dls"] = "";
 
-            if (service.mot && service.mot.time > 0) {
-                s["dls"] += '<button type=button onclick="showSlide(';
-                s["dls"] += service.sid + ', ' + service.mot.time;
-                s["dls"] += ')">SLS</button>';
-            }
-
             if (service.dls) {
                 var last_update = new Date(service.dls.time * 1000);
                 s["dls"] += ' <span title="Updated ' + last_update + '">' + service.dls.label + '</span>';
@@ -493,6 +487,13 @@ function populateEnsembleinfo() {
             } else {
                 s["playbutton"] = '<button type=button disabled class="disabled">Play</button>';
             }
+
+            var hasMot = service.mot && service.mot.time > 0;
+            s["sid"] = "sls-" + service.sid;
+            s["sid_num"] = service.sid;
+            s["mot_time"] = hasMot ? service.mot.time : 0;
+            s["slssrc"] = hasMot ? "slide/" + service.sid + "?t=" + service.mot.time : "";
+            s["slsvisible"] = hasMot ? "" : "display:none";
 
             servicehtml += parseTemplate(serviceTemplate(), s)
         }
@@ -555,15 +556,26 @@ function populateEnsembleinfo() {
 
         drawAudiolevels(data.services);
 
-        // Auto-refresh SLS slide if modal is open and image has been updated
-        if (currentSlideSid !== null && slide_modal.style.display === "block") {
-            for (var key in data.services) {
-                var svc = data.services[key];
-                if (parseInt(svc.sid) === currentSlideSid) {
-                    if (svc.mot && svc.mot.time > currentSlideLastUpdate) {
+        // Refresh inline SLS thumbnails and modal if open
+        for (var key in data.services) {
+            var svc = data.services[key];
+            var thumb = document.getElementById("sls-" + svc.sid);
+            if (thumb) {
+                if (svc.mot && svc.mot.time > 0) {
+                    var newSrc = "slide/" + svc.sid + "?t=" + svc.mot.time;
+                    if (thumb.dataset.motTime !== String(svc.mot.time)) {
+                        thumb.src = newSrc;
+                        thumb.dataset.motTime = String(svc.mot.time);
+                        thumb.style.display = "";
+                    }
+                    if (currentSlideSid !== null &&
+                        parseInt(svc.sid) === currentSlideSid &&
+                        slide_modal.style.display === "block" &&
+                        svc.mot.time > currentSlideLastUpdate) {
                         showSlide(currentSlideSid, svc.mot.time);
                     }
-                    break;
+                } else {
+                    thumb.style.display = "none";
                 }
             }
         }
