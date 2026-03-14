@@ -332,16 +332,23 @@ button[onclick="stopPlayer()"]::before {
     font-size: 12px;
 }
 
-/* SLS button */
-button[onclick^="showSlide"] {
-    background: linear-gradient(135deg, #a855f7, #7c3aed);
-    padding: 8px 16px;
-    font-size: 14px;
-    box-shadow: 0 2px 8px rgba(168, 85, 247, 0.2);
+/* SLS inline thumbnail */
+.sls-cell {
+    text-align: center;
+    vertical-align: middle;
 }
-button[onclick^="showSlide"]:hover {
-    background: linear-gradient(135deg, #b566ff, #8b4ffe);
-    box-shadow: 0 4px 16px rgba(168, 85, 247, 0.35);
+.sls-thumb {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid #3a3d50;
+    transition: opacity 0.3s;
+    display: block;
+}
+.sls-thumb:hover {
+    opacity: 0.8;
 }
 
 button.disabled, button:disabled {
@@ -438,35 +445,26 @@ canvas {
     width: 80%;
     max-width: 700px;
     text-align: center;
-    color: #aaa;
-    padding: 16px 0;
-    height: 80px;
-    font-size: 15px;
+    padding: 16px 0 24px;
+}
+#slide-station-name {
+    font-size: 22px;
+    font-weight: 700;
+    color: #f0f0f5;
+    margin-bottom: 10px;
+    letter-spacing: -0.01em;
+}
+#slide-dls {
+    font-size: 16px;
+    color: #a0a0b8;
+    font-style: italic;
+    min-height: 22px;
 }
 .slide-modal-content {
     max-width: 95vw;
 }
-.slideclose {
-    position: absolute;
-    top: 15px;
-    right: 35px;
-    color: #f1f1f1;
-    font-size: 36px;
-    font-weight: bold;
-    transition: color 0.2s;
+.slide-modal {
     cursor: pointer;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.08);
-}
-.slideclose:hover,
-.slideclose:focus {
-    color: #fff;
-    background: rgba(255,255,255,0.15);
 }
 
 /* ── SNR Widget ───────────────────────────────────── */
@@ -827,6 +825,19 @@ canvas {
         order: -1;
         margin-left: auto;
     }
+    /* Col 13: SLS thumbnail - full width at bottom */
+    #ensembleinfo table td:nth-child(13) {
+        flex: 1 1 100%;
+        order: 4;
+        display: flex;
+        justify-content: center;
+    }
+    #ensembleinfo table td:nth-child(13) .sls-thumb {
+        width: 100%;
+        height: auto;
+        max-height: 180px;
+        border-radius: 8px;
+    }
     /* Col 3: Bitrate - hidden on mobile */
     #ensembleinfo table td:nth-child(3) {
         display: none;
@@ -892,13 +903,6 @@ canvas {
     /* ── Mobile modal ────────────────────────────── */
     .slide-modal {
         padding-top: 30px;
-    }
-    .slideclose {
-        top: 10px;
-        right: 10px;
-        font-size: 30px;
-        width: 44px;
-        height: 44px;
     }
     #slidecaption {
         width: 95%;
@@ -978,9 +982,11 @@ canvas {
             </audio>
         </div>
         <div id="mySlideModal" class="slide-modal">
-            <span class="slideclose">&times;</span>
             <img class="slide-modal-content" id="slideimg">
-            <div id="slidecaption"></div>
+            <div id="slidecaption">
+                <div id="slide-station-name"></div>
+                <div id="slide-dls"></div>
+            </div>
         </div>
 
         <div class="app-container">
@@ -988,7 +994,7 @@ canvas {
                 welle.io &mdash; DAB and DAB+ Software Defined Radio (SDR).
                 <a href="https://github.com/AlbrechtL/welle.io/">GitHub</a> &middot;
                 <a href="https://www.welle.io">Website</a>
-                &middot; <button type="button" id="restartBtn" title="Redémarrer welle-cli">↺ Redémarrer</button>
+                &middot; <button type="button" id="restartBtn" title="Restart welle-cli">↺ Restart</button>
             </div>
         </div>
 

@@ -144,7 +144,7 @@ window.onload = function() {
     var restartBtn = document.getElementById("restartBtn");
     if (restartBtn) {
         restartBtn.onclick = function() {
-            if (confirm("Redémarrer welle-cli ?")) {
+            if (confirm("Restart welle-cli?")) {
                 var xhr = new XMLHttpRequest();
                 xhr.open("POST", '/restart', true);
                 xhr.send();
@@ -169,6 +169,7 @@ var ensembleInfoTimer = setInterval(populateEnsembleinfo, 1000);
 var currentPlayingSid = null;
 var currentSlideSid = null;
 var currentSlideLastUpdate = 0;
+var slsCache = {}; // sid -> {time, blobUrl} — slide images stored as local blob URLs
 
 function muxHeaderTemplate() {
     var html = '';
@@ -212,7 +213,7 @@ function ensembleInfoTemplate() {
     html += '<th><abbr title="Programme type">PTy</abbr></th>';
     html += '<th><abbr title="Service language, Subchannel language">Languages</abbr></th> <th id="dls">DLS</th>';
     html += '<th><abbr title="Frame, Reed Solomon, AAC errors">Errors</abbr></th>';
-    html += '<th><abbr title="red: right, black: left">Audio Level</abbr></th> <th></th></tr>';
+    html += '<th><abbr title="red: right, black: left">Audio Level</abbr></th> <th></th><th></th></tr>';
     html += '${services}</table>';
     return html;
 }
@@ -224,6 +225,7 @@ function serviceTemplate() {
     html += '<td>${errorcounters}</td>';
     html += '<td><canvas id="${canvasid}" width="64" height="12"></canvas></td>';
     html += '<td>${playbutton}</td>';
+    html += '<td class="sls-cell"><img id="sls-${sid}" class="sls-thumb" src="${slssrc}" alt="" onclick="showSlide(${sid_num}, ${mot_time})" style="${slsvisible}"></td>';
     html += '</tr>';
     return html;
 }
@@ -252,23 +254,24 @@ function stopPlayer() {
 
 var slide_modal = document.getElementById('mySlideModal');
 var slideimg = document.getElementById("slideimg");
-var slidecaption = document.getElementById("slidecaption");
+var slideStationName = document.getElementById("slide-station-name");
+var slideDls = document.getElementById("slide-dls");
 
 function showSlide(sid, last_update_time) {
     currentSlideSid = sid;
     currentSlideLastUpdate = last_update_time;
     slideimg.src = "slide/" + sid + "?t=" + Date.now();
-    var last_update = new Date(last_update_time * 1000);
-    slidecaption.innerHTML = last_update;
+    var cached = slsCache[String(sid)] || slsCache["0x" + sid.toString(16).toUpperCase()];
+    slideStationName.textContent = (cached && cached.stationName) ? cached.stationName : "";
+    slideDls.textContent = (cached && cached.dls) ? cached.dls : "";
     slide_modal.style.display = "block";
 }
 
-var slideclose = document.getElementsByClassName("slideclose")[0];
-slideclose.onclick = function() {
+slide_modal.addEventListener("click", function() {
     slide_modal.style.display = "none";
     currentSlideSid = null;
     currentSlideLastUpdate = 0;
-}
+});
 
 function parseTemplate(template, data) {
    return template.replace(/\$\{(\w+)\}/gi, function(match, parensMatch) {
@@ -411,6 +414,21 @@ function populateEnsembleinfo() {
             return a.sad - b.sad;
         });
 
+        // Preload new slide images before rebuilding DOM
+        for (var pkey in data.services) {
+            var psvc = data.services[pkey];
+            if (psvc.mot && psvc.mot.time > 0) {
+                var psid = psvc.sid;
+                if (!slsCache[psid] || slsCache[psid].time !== psvc.mot.time) {
+                    var purl = "slide/" + parseInt(psid) + "?t=" + psvc.mot.time;
+                    var prevEntry = slsCache[psid] || {};
+                    slsCache[psid] = {time: psvc.mot.time, url: purl, stationName: prevEntry.stationName || "", dls: prevEntry.dls || ""};
+                    var pimg = new Image();
+                    pimg.src = purl;
+                }
+            }
+        }
+
         var servicehtml = "";
         for (ix in start_addresses) {
             var key = start_addresses[ix].key;
@@ -452,12 +470,6 @@ function populateEnsembleinfo() {
 
             s["dls"] = "";
 
-            if (service.mot && service.mot.time > 0) {
-                s["dls"] += '<button type=button onclick="showSlide(';
-                s["dls"] += service.sid + ', ' + service.mot.time;
-                s["dls"] += ')">SLS</button>';
-            }
-
             if (service.dls) {
                 var last_update = new Date(service.dls.time * 1000);
                 s["dls"] += ' <span title="Updated ' + last_update + '">' + service.dls.label + '</span>';
@@ -493,6 +505,13 @@ function populateEnsembleinfo() {
             } else {
                 s["playbutton"] = '<button type=button disabled class="disabled">Play</button>';
             }
+
+            var cached = slsCache[service.sid];
+            s["sid"] = "sls-" + service.sid;
+            s["sid_num"] = service.sid;
+            s["mot_time"] = cached ? cached.time : 0;
+            s["slssrc"] = cached ? cached.url : "";
+            s["slsvisible"] = cached ? "" : "display:none";
 
             servicehtml += parseTemplate(serviceTemplate(), s)
         }
@@ -555,15 +574,24 @@ function populateEnsembleinfo() {
 
         drawAudiolevels(data.services);
 
-        // Auto-refresh SLS slide if modal is open and image has been updated
-        if (currentSlideSid !== null && slide_modal.style.display === "block") {
-            for (var key in data.services) {
-                var svc = data.services[key];
-                if (parseInt(svc.sid) === currentSlideSid) {
-                    if (svc.mot && svc.mot.time > currentSlideLastUpdate) {
-                        showSlide(currentSlideSid, svc.mot.time);
+        // Update slsCache metadata and refresh modal if open
+        for (var key in data.services) {
+            var svc = data.services[key];
+            if (slsCache[svc.sid]) {
+                slsCache[svc.sid].stationName = svc.label ? (svc.label.fig2label || svc.label.label) : "";
+                slsCache[svc.sid].dls = (svc.dls && svc.dls.label) ? svc.dls.label : "";
+            }
+            if (currentSlideSid !== null && slide_modal.style.display === "block" &&
+                parseInt(svc.sid) === currentSlideSid) {
+                if (svc.mot && svc.mot.time > currentSlideLastUpdate) {
+                    showSlide(currentSlideSid, svc.mot.time);
+                } else {
+                    // Refresh DLS text even if image hasn't changed
+                    var c = slsCache[svc.sid];
+                    if (c) {
+                        slideStationName.textContent = c.stationName || "";
+                        slideDls.textContent = c.dls || "";
                     }
-                    break;
                 }
             }
         }
