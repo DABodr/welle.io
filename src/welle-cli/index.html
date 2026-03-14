@@ -352,9 +352,9 @@ button[onclick="stopPlayer()"]::before {
     vertical-align: middle;
 }
 .sls-thumb {
-    width: 70px;
-    height: 70px;
-    object-fit: cover;
+    width: 80px;
+    height: 60px;
+    object-fit: contain;
     border-radius: 6px;
     cursor: pointer;
     border: 1px solid #3a3d50;
@@ -989,11 +989,18 @@ canvas {
     }
 
     /* ── Services table: CARD LAYOUT ─────────────── */
+    .service-table-wrapper {
+        overflow-x: visible;
+        border: none;
+        border-radius: 0;
+        margin-bottom: 0;
+    }
     #ensembleinfo table {
         display: flex;
         flex-direction: column;
         align-items: stretch;
         width: 100%;
+        min-width: 0;
         box-sizing: border-box;
         border: none;
         overflow: visible;
@@ -1049,9 +1056,9 @@ canvas {
     }
     #ensembleinfo table td:nth-child(13) .sls-thumb {
         display: block;
-        width: 80px;
-        height: 80px;
-        object-fit: cover;
+        width: 160px;
+        height: 120px;
+        object-fit: contain;
         border-radius: 8px;
     }
     /* Col 3: Bitrate - hidden on mobile */
@@ -1060,11 +1067,14 @@ canvas {
     }
     /* Col 9: DLS - full width below */
     #ensembleinfo table td:nth-child(9) {
-        flex: 1 1 100%;
+        order: 3;
+        width: 100%;
+        box-sizing: border-box;
+        min-width: 0;
         font-size: 13px;
         color: #b0b0c0;
-        order: 3;
-        min-height: 0;
+        word-break: break-word;
+        overflow-wrap: anywhere;
     }
     /* Hide non-essential columns:
        col2=SId, col4=CU, col5=Prot, col6=Tech, col7=PTy, col8=Lang, col10=Errors, col11=AudioLevel */

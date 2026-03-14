@@ -478,7 +478,7 @@ function serviceTemplate() {
     html += '<td>${errorcounters}</td>';
     html += '<td><canvas id="${canvasid}" width="64" height="12"></canvas></td>';
     html += '<td>${playbutton}</td>';
-    html += '<td class="sls-cell"><img id="sls-${sid}" class="sls-thumb" src="${slssrc}" alt="" onclick="showSlide(${sid_num}, ${mot_time})" style="${slsvisible}" onerror="this.style.display=\'none\'"></td>';
+    html += '<td class="sls-cell"><img id="sls-${sid}" class="sls-thumb" src="${slssrc}" alt="" onclick="showSlide(${sid_num}, ${mot_time})" style="${slsvisible}"></td>';
     html += '</tr>';
     return html;
 }
@@ -670,8 +670,8 @@ function populateEnsembleinfo() {
         // Preload new slide images before rebuilding DOM
         for (var pkey in data.services) {
             var psvc = data.services[pkey];
-            var psid = psvc.sid;
             if (psvc.mot && psvc.mot.time > 0) {
+                var psid = psvc.sid;
                 if (!slsCache[psid] || slsCache[psid].time !== psvc.mot.time) {
                     var purl = "slide/" + parseInt(psid) + "?t=" + psvc.mot.time;
                     var prevEntry = slsCache[psid] || {};
@@ -679,9 +679,6 @@ function populateEnsembleinfo() {
                     var pimg = new Image();
                     pimg.src = purl;
                 }
-            } else {
-                // MOT non disponible — supprimer le cache pour éviter l'affichage du "?"
-                delete slsCache[psid];
             }
         }
 
