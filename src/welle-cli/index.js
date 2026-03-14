@@ -195,7 +195,39 @@ var scanFoundMux = []; // [{ch, label}]
 document.getElementById("scanPanelClear").onclick = function() {
     scanResultsPanel.style.display = "none";
     scanFoundMux = [];
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/scanresults", true);
+    xhr.setRequestHeader("Content-type", "application/json");
+    xhr.send("[]");
 };
+
+function refreshScanResultsFromServer() {
+    if (scanRunning) return;
+    var r = new XMLHttpRequest();
+    r.open("GET", "/scanresults", true);
+    r.timeout = 2000;
+    r.onreadystatechange = function() {
+        if (r.readyState !== 4 || r.status !== 200) return;
+        try {
+            var arr = JSON.parse(r.responseText);
+            if (!Array.isArray(arr) || arr.length === 0) return;
+            var changed = false;
+            arr.forEach(function(m) {
+                if (!scanFoundMux.some(function(x) { return x.ch === m.ch; })) {
+                    scanFoundMux.push(m);
+                    changed = true;
+                }
+            });
+            if (changed) {
+                var currentCh = document.getElementById("channelselector").value;
+                updateScanPanel(currentCh);
+            }
+        } catch(e) {}
+    };
+    r.send();
+}
+setInterval(refreshScanResultsFromServer, 3000);
+refreshScanResultsFromServer();
 
 function updateScanPanel(currentCh) {
     if (scanFoundMux.length === 0) { scanResultsPanel.style.display = "none"; return; }
@@ -303,6 +335,10 @@ function scanStep(chList, index, found, originalChannel) {
                                     if (label.length > 0) {
                                         var newFound = found + 1;
                                         scanFoundMux.push({ch: ch, label: label});
+                                        var xhrPush = new XMLHttpRequest();
+                                        xhrPush.open("POST", "/scanresults", true);
+                                        xhrPush.setRequestHeader("Content-type", "application/json");
+                                        xhrPush.send(JSON.stringify(scanFoundMux));
                                         var li = document.createElement("li");
                                         li.className = "scan-result-item";
                                         li.innerHTML = '<span class="scan-result-channel">' + ch + '</span>' +
