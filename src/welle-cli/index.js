@@ -144,7 +144,7 @@ window.onload = function() {
     var restartBtn = document.getElementById("restartBtn");
     if (restartBtn) {
         restartBtn.onclick = function() {
-            if (confirm("Redémarrer welle-cli ?")) {
+            if (confirm("Restart welle-cli?")) {
                 var xhr = new XMLHttpRequest();
                 xhr.open("POST", '/restart', true);
                 xhr.send();
@@ -267,12 +267,11 @@ function showSlide(sid, last_update_time) {
     slide_modal.style.display = "block";
 }
 
-var slideclose = document.getElementsByClassName("slideclose")[0];
-slideclose.onclick = function() {
+slide_modal.addEventListener("click", function() {
     slide_modal.style.display = "none";
     currentSlideSid = null;
     currentSlideLastUpdate = 0;
-}
+});
 
 function parseTemplate(template, data) {
    return template.replace(/\$\{(\w+)\}/gi, function(match, parensMatch) {

@@ -463,27 +463,8 @@ canvas {
 .slide-modal-content {
     max-width: 95vw;
 }
-.slideclose {
-    position: absolute;
-    top: 15px;
-    right: 35px;
-    color: #f1f1f1;
-    font-size: 36px;
-    font-weight: bold;
-    transition: color 0.2s;
+.slide-modal {
     cursor: pointer;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.08);
-}
-.slideclose:hover,
-.slideclose:focus {
-    color: #fff;
-    background: rgba(255,255,255,0.15);
 }
 
 /* ── SNR Widget ───────────────────────────────────── */
@@ -923,13 +904,6 @@ canvas {
     .slide-modal {
         padding-top: 30px;
     }
-    .slideclose {
-        top: 10px;
-        right: 10px;
-        font-size: 30px;
-        width: 44px;
-        height: 44px;
-    }
     #slidecaption {
         width: 95%;
         font-size: 14px;
@@ -1008,7 +982,6 @@ canvas {
             </audio>
         </div>
         <div id="mySlideModal" class="slide-modal">
-            <span class="slideclose">&times;</span>
             <img class="slide-modal-content" id="slideimg">
             <div id="slidecaption">
                 <div id="slide-station-name"></div>
@@ -1021,7 +994,7 @@ canvas {
                 welle.io &mdash; DAB and DAB+ Software Defined Radio (SDR).
                 <a href="https://github.com/AlbrechtL/welle.io/">GitHub</a> &middot;
                 <a href="https://www.welle.io">Website</a>
-                &middot; <button type="button" id="restartBtn" title="Redémarrer welle-cli">↺ Redémarrer</button>
+                &middot; <button type="button" id="restartBtn" title="Restart welle-cli">↺ Restart</button>
             </div>
         </div>
 
