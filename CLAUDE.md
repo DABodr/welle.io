@@ -274,13 +274,17 @@ make -j$(nproc)
 - **Polling** toutes les 1s sur `/mux.json` (pas de WebSocket)
 - **Graphiques** : Canvas HTML5 (spectre, CIR, constellation) — fetch binaire float32
 - **Audio** : `<audio>` HTML5 natif, src = `/stream/<SId>`
-- **Responsive** : thème sombre, cards mobile (< 600px), colonnes masquées
-- **MOT/SLS** : `GET /slide/<SId>?cachebreak=<timestamp>` pour éviter le cache
+- **Responsive** : thème sombre, cards mobile (< 900px), colonnes masquées
+- **MOT/SLS inline** : vignette 70×70 dans la colonne 13 du tableau ; préchargement via `new Image()` dans `slsCache` avant rebuild DOM (évite le "?" de chargement) ; URL `/slide/<decimal_sid>?t=<mot.time>` (`parseInt(sid)` obligatoire, le JSON donne l'hex)
+- **Modal slide** : nom station (22px gras) + DLS (16px italique) ; fermeture par clic sur l'overlay ; pas de bouton ✕
 - **SNR widget** : bargraphe segmenté (20 segments, rouge→orange→jaune→vert, 0–30 dB)
 - **TII** : affichage MainId (pattern) / SubId (comb) ; lookup site via `tii_db` (variable JS) ; entrées sans site connues masquées
-- **Bouton Redémarrer** : footer, envoie `POST /restart` → welle-cli reçoit SIGTERM → systemd relance en 3s
+- **Bouton Restart** : footer, envoie `POST /restart` → welle-cli reçoit SIGTERM → systemd relance en 3s
 - **Sélecteur canal** : désactivé pendant la requête POST, timeout 8s pour éviter blocage permanent (bug librtlsdr cancel_async)
 - **Ordre scripts** : les balises `<script>` sont placées après le footer pour que tous les éléments DOM soient disponibles
+- **Scan de canaux** : bouton ⊕ Scan dans la barre de contrôle ; modale de progression avec barre et compteur ; résultats persistants en badges cliquables sous la barre de contrôle
+- **Logique scan** : `postChannel()` XHR 8s timeout → attente sync 3s → si `demodulator.synced` = true : polling `/mux.json` toutes les 1s jusqu'à 20 tentatives → label nettoyé (`\x00` strippés) → ajouté à `scanFoundMux[]` seulement si label non vide
+- **Barre de contrôle** : `align-items: stretch` sur `.channel-ctrl` → hauteur uniforme entre `<select>`, bouton Scan et bouton Paramètres, desktop et mobile
 
 ---
 
