@@ -169,6 +169,7 @@ var ensembleInfoTimer = setInterval(populateEnsembleinfo, 1000);
 var currentPlayingSid = null;
 var currentSlideSid = null;
 var currentSlideLastUpdate = 0;
+var slsCache = {}; // sid -> {time, blobUrl} — slide images stored as local blob URLs
 
 function muxHeaderTemplate() {
     var html = '';
@@ -212,7 +213,7 @@ function ensembleInfoTemplate() {
     html += '<th><abbr title="Programme type">PTy</abbr></th>';
     html += '<th><abbr title="Service language, Subchannel language">Languages</abbr></th> <th id="dls">DLS</th>';
     html += '<th><abbr title="Frame, Reed Solomon, AAC errors">Errors</abbr></th>';
-    html += '<th><abbr title="red: right, black: left">Audio Level</abbr></th> <th></th></tr>';
+    html += '<th><abbr title="red: right, black: left">Audio Level</abbr></th> <th></th><th></th></tr>';
     html += '${services}</table>';
     return html;
 }
@@ -223,7 +224,8 @@ function serviceTemplate() {
     html += '<td>${pty}</td> <td>${language}<br>${subchannel_language}</td> <td><i>${dls}</i></td>';
     html += '<td>${errorcounters}</td>';
     html += '<td><canvas id="${canvasid}" width="64" height="12"></canvas></td>';
-    html += '<td class="play-cell"><img id="sls-${sid}" class="sls-thumb" src="${slssrc}" alt="" onclick="showSlide(${sid_num}, ${mot_time})" style="${slsvisible}">${playbutton}</td>';
+    html += '<td>${playbutton}</td>';
+    html += '<td class="sls-cell"><img id="sls-${sid}" class="sls-thumb" src="${slssrc}" alt="" onclick="showSlide(${sid_num}, ${mot_time})" style="${slsvisible}"></td>';
     html += '</tr>';
     return html;
 }
@@ -252,14 +254,16 @@ function stopPlayer() {
 
 var slide_modal = document.getElementById('mySlideModal');
 var slideimg = document.getElementById("slideimg");
-var slidecaption = document.getElementById("slidecaption");
+var slideStationName = document.getElementById("slide-station-name");
+var slideDls = document.getElementById("slide-dls");
 
 function showSlide(sid, last_update_time) {
     currentSlideSid = sid;
     currentSlideLastUpdate = last_update_time;
     slideimg.src = "slide/" + sid + "?t=" + Date.now();
-    var last_update = new Date(last_update_time * 1000);
-    slidecaption.innerHTML = last_update;
+    var cached = slsCache[String(sid)] || slsCache["0x" + sid.toString(16).toUpperCase()];
+    slideStationName.textContent = (cached && cached.stationName) ? cached.stationName : "";
+    slideDls.textContent = (cached && cached.dls) ? cached.dls : "";
     slide_modal.style.display = "block";
 }
 
@@ -411,6 +415,21 @@ function populateEnsembleinfo() {
             return a.sad - b.sad;
         });
 
+        // Preload new slide images before rebuilding DOM
+        for (var pkey in data.services) {
+            var psvc = data.services[pkey];
+            if (psvc.mot && psvc.mot.time > 0) {
+                var psid = psvc.sid;
+                if (!slsCache[psid] || slsCache[psid].time !== psvc.mot.time) {
+                    var purl = "slide/" + parseInt(psid) + "?t=" + psvc.mot.time;
+                    var prevEntry = slsCache[psid] || {};
+                    slsCache[psid] = {time: psvc.mot.time, url: purl, stationName: prevEntry.stationName || "", dls: prevEntry.dls || ""};
+                    var pimg = new Image();
+                    pimg.src = purl;
+                }
+            }
+        }
+
         var servicehtml = "";
         for (ix in start_addresses) {
             var key = start_addresses[ix].key;
@@ -488,12 +507,12 @@ function populateEnsembleinfo() {
                 s["playbutton"] = '<button type=button disabled class="disabled">Play</button>';
             }
 
-            var hasMot = service.mot && service.mot.time > 0;
+            var cached = slsCache[service.sid];
             s["sid"] = "sls-" + service.sid;
             s["sid_num"] = service.sid;
-            s["mot_time"] = hasMot ? service.mot.time : 0;
-            s["slssrc"] = hasMot ? "slide/" + service.sid + "?t=" + service.mot.time : "";
-            s["slsvisible"] = hasMot ? "" : "display:none";
+            s["mot_time"] = cached ? cached.time : 0;
+            s["slssrc"] = cached ? cached.url : "";
+            s["slsvisible"] = cached ? "" : "display:none";
 
             servicehtml += parseTemplate(serviceTemplate(), s)
         }
@@ -556,26 +575,24 @@ function populateEnsembleinfo() {
 
         drawAudiolevels(data.services);
 
-        // Refresh inline SLS thumbnails and modal if open
+        // Update slsCache metadata and refresh modal if open
         for (var key in data.services) {
             var svc = data.services[key];
-            var thumb = document.getElementById("sls-" + svc.sid);
-            if (thumb) {
-                if (svc.mot && svc.mot.time > 0) {
-                    var newSrc = "slide/" + svc.sid + "?t=" + svc.mot.time;
-                    if (thumb.dataset.motTime !== String(svc.mot.time)) {
-                        thumb.src = newSrc;
-                        thumb.dataset.motTime = String(svc.mot.time);
-                        thumb.style.display = "";
-                    }
-                    if (currentSlideSid !== null &&
-                        parseInt(svc.sid) === currentSlideSid &&
-                        slide_modal.style.display === "block" &&
-                        svc.mot.time > currentSlideLastUpdate) {
-                        showSlide(currentSlideSid, svc.mot.time);
-                    }
+            if (slsCache[svc.sid]) {
+                slsCache[svc.sid].stationName = svc.label ? (svc.label.fig2label || svc.label.label) : "";
+                slsCache[svc.sid].dls = (svc.dls && svc.dls.label) ? svc.dls.label : "";
+            }
+            if (currentSlideSid !== null && slide_modal.style.display === "block" &&
+                parseInt(svc.sid) === currentSlideSid) {
+                if (svc.mot && svc.mot.time > currentSlideLastUpdate) {
+                    showSlide(currentSlideSid, svc.mot.time);
                 } else {
-                    thumb.style.display = "none";
+                    // Refresh DLS text even if image hasn't changed
+                    var c = slsCache[svc.sid];
+                    if (c) {
+                        slideStationName.textContent = c.stationName || "";
+                        slideDls.textContent = c.dls || "";
+                    }
                 }
             }
         }

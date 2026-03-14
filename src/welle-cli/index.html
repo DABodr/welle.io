@@ -333,11 +333,9 @@ button[onclick="stopPlayer()"]::before {
 }
 
 /* SLS inline thumbnail */
-.play-cell {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
+.sls-cell {
+    text-align: center;
+    vertical-align: middle;
 }
 .sls-thumb {
     width: 70px;
@@ -347,6 +345,7 @@ button[onclick="stopPlayer()"]::before {
     cursor: pointer;
     border: 1px solid #3a3d50;
     transition: opacity 0.3s;
+    display: block;
 }
 .sls-thumb:hover {
     opacity: 0.8;
@@ -446,10 +445,20 @@ canvas {
     width: 80%;
     max-width: 700px;
     text-align: center;
-    color: #aaa;
-    padding: 16px 0;
-    height: 80px;
-    font-size: 15px;
+    padding: 16px 0 24px;
+}
+#slide-station-name {
+    font-size: 22px;
+    font-weight: 700;
+    color: #f0f0f5;
+    margin-bottom: 10px;
+    letter-spacing: -0.01em;
+}
+#slide-dls {
+    font-size: 16px;
+    color: #a0a0b8;
+    font-style: italic;
+    min-height: 22px;
 }
 .slide-modal-content {
     max-width: 95vw;
@@ -835,6 +844,19 @@ canvas {
         order: -1;
         margin-left: auto;
     }
+    /* Col 13: SLS thumbnail - full width at bottom */
+    #ensembleinfo table td:nth-child(13) {
+        flex: 1 1 100%;
+        order: 4;
+        display: flex;
+        justify-content: center;
+    }
+    #ensembleinfo table td:nth-child(13) .sls-thumb {
+        width: 100%;
+        height: auto;
+        max-height: 180px;
+        border-radius: 8px;
+    }
     /* Col 3: Bitrate - hidden on mobile */
     #ensembleinfo table td:nth-child(3) {
         display: none;
@@ -988,7 +1010,10 @@ canvas {
         <div id="mySlideModal" class="slide-modal">
             <span class="slideclose">&times;</span>
             <img class="slide-modal-content" id="slideimg">
-            <div id="slidecaption"></div>
+            <div id="slidecaption">
+                <div id="slide-station-name"></div>
+                <div id="slide-dls"></div>
+            </div>
         </div>
 
         <div class="app-container">
