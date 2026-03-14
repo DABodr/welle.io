@@ -397,7 +397,7 @@ function muxHeaderTemplate() {
 }
 
 function ensembleInfoTemplate() {
-    var html = '<table id="servicetable">';
+    var html = '<div class="service-table-wrapper"><table id="servicetable">';
     html += '<tr><th>FIG1 Label (Short label)<br>FIG2 Label</th> ';
     html += '<th><abbr title="Service ID">SId</abbr></th> ';
     html += '<th>Bitrate</th> <th><abbr title="Start CU Address, used CUs">CU info</abbr></th> ';
@@ -407,7 +407,7 @@ function ensembleInfoTemplate() {
     html += '<th><abbr title="Service language, Subchannel language">Languages</abbr></th> <th id="dls">DLS</th>';
     html += '<th><abbr title="Frame, Reed Solomon, AAC errors">Errors</abbr></th>';
     html += '<th><abbr title="red: right, black: left">Audio Level</abbr></th> <th></th><th></th></tr>';
-    html += '${services}</table>';
+    html += '${services}</table></div>';
     return html;
 }
 

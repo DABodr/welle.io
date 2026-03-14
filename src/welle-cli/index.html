@@ -51,7 +51,7 @@ h2 {
 
 /* ── Layout ───────────────────────────────────────── */
 .app-container {
-    max-width: 1100px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 24px 20px;
 }
@@ -195,14 +195,23 @@ table, th, td {
     border: none;
     border-collapse: collapse;
 }
+/* Wrapper pour scroll horizontal si l'écran est trop étroit */
+.service-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    border: 1px solid #2a2d3a;
+}
 table#servicetable {
     width: 100%;
+    min-width: 900px;
     border-collapse: separate;
     border-spacing: 0;
     border-radius: 12px;
     overflow: hidden;
-    margin-bottom: 16px;
-    border: 1px solid #2a2d3a;
+    margin-bottom: 0;
+    border: none;
 }
 table#servicetable th {
     background: #1e2130;
