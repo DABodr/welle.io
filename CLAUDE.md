@@ -76,6 +76,7 @@ welle-cli [OPTIONS]
 | `/fftwindowplacement` | POST | Placement fenêtre FFT |
 | `/enablecoarsecorrector` | POST | Activation correction fréquence grossière |
 | `/restart` | POST | Envoie SIGTERM → systemd relance le service |
+| `/scanresults` | GET/POST | Lecture ou écriture des résultats de scan (JSON array `[{ch, label}]`) partagés entre tous les clients |
 
 ### Flux de données radio
 
@@ -284,7 +285,10 @@ make -j$(nproc)
 - **Ordre scripts** : les balises `<script>` sont placées après le footer pour que tous les éléments DOM soient disponibles
 - **Scan de canaux** : bouton ⊕ Scan dans la barre de contrôle ; modale de progression avec barre et compteur ; résultats persistants en badges cliquables sous la barre de contrôle
 - **Logique scan** : `postChannel()` XHR 8s timeout → attente sync 3s → si `demodulator.synced` = true : polling `/mux.json` toutes les 1s jusqu'à 20 tentatives → label nettoyé (`\x00` strippés) → ajouté à `scanFoundMux[]` seulement si label non vide
+- **Scan arrière-plan mobile** : `scanSetTimeout()` wrapper + listener `visibilitychange` → le scan reprend immédiatement quand l'onglet revient au premier plan au lieu d'attendre le timer gelé
+- **Scan partagé multi-clients** : résultats envoyés au serveur via `POST /scanresults` après chaque mux trouvé ; tous les clients pollent `GET /scanresults` toutes les 3s et fusionnent les nouveaux résultats ; résultats restaurés au chargement de la page
 - **Barre de contrôle** : `align-items: stretch` sur `.channel-ctrl` → hauteur uniforme entre `<select>`, bouton Scan et bouton Paramètres, desktop et mobile
+- **Layout PC** : `max-width: 1400px` (au lieu de 1100px) ; tableau de services dans un wrapper `overflow-x: auto` avec `min-width: 900px`
 
 ---
 
