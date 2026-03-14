@@ -276,7 +276,8 @@ make -j$(nproc)
 - **Graphiques** : Canvas HTML5 (spectre, CIR, constellation) — fetch binaire float32
 - **Audio** : `<audio>` HTML5 natif, src = `/stream/<SId>`
 - **Responsive** : thème sombre, cards mobile (< 900px), colonnes masquées
-- **MOT/SLS inline** : vignette 70×70 dans la colonne 13 du tableau ; préchargement via `new Image()` dans `slsCache` avant rebuild DOM (évite le "?" de chargement) ; URL `/slide/<decimal_sid>?t=<mot.time>` (`parseInt(sid)` obligatoire, le JSON donne l'hex)
+- **MOT/SLS inline** : vignette 70×70 dans la colonne 13 du tableau (desktop) ; préchargement via `new Image()` dans `slsCache` avant rebuild DOM (évite le "?" de chargement) ; URL `/slide/<decimal_sid>?t=<mot.time>` (`parseInt(sid)` obligatoire, le JSON donne l'hex)
+- **SLS mobile — piège layout** : sur mobile, le td:nth-child(13) doit avoir `order:4; width:100%; box-sizing:border-box` (PAS de `flex:1 1 100%` qui déborde, PAS de `display:flex`). L'img `.sls-thumb` doit avoir `display:block; width:80px; height:80px; object-fit:cover` sans `margin:0 auto` (centrage cassé sur mobile). Le tr carte doit avoir `overflow:hidden`. Résultat : image collée à gauche sous le DLS, 80×80px.
 - **Modal slide** : nom station (22px gras) + DLS (16px italique) ; fermeture par clic sur l'overlay ; pas de bouton ✕
 - **SNR widget** : bargraphe segmenté (20 segments, rouge→orange→jaune→vert, 0–30 dB)
 - **TII** : affichage MainId (pattern) / SubId (comb) ; lookup site via `tii_db` (variable JS) ; entrées sans site connues masquées
