@@ -156,6 +156,30 @@ window.onload = function() {
 // ── Channel scan ────────────────────────────────────
 var scanRunning = false;
 var scanShouldStop = false;
+
+// Wrapper setTimeout qui résiste au throttling arrière-plan mobile :
+// si la page redevient visible alors qu'un timer est en attente, on
+// l'exécute immédiatement plutôt d'attendre le timer gelé.
+var _scanTimerId = null;
+var _scanTimerFn = null;
+function scanSetTimeout(fn, delay) {
+    if (_scanTimerId) clearTimeout(_scanTimerId);
+    _scanTimerFn = fn;
+    _scanTimerId = setTimeout(function() {
+        _scanTimerId = null;
+        _scanTimerFn = null;
+        fn();
+    }, delay);
+}
+document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'visible' && scanRunning && _scanTimerFn) {
+        clearTimeout(_scanTimerId);
+        var fn = _scanTimerFn;
+        _scanTimerId = null;
+        _scanTimerFn = null;
+        fn();
+    }
+});
 var scanModal = document.getElementById("scanModal");
 var scanResults = document.getElementById("scanResults");
 var scanProgressFill = document.getElementById("scanProgressFill");
@@ -238,7 +262,7 @@ function scanStep(chList, index, found, originalChannel) {
 
     postChannel(ch, function() {
         // Wait for sync (3s)
-        setTimeout(function() {
+        scanSetTimeout(function() {
             if (scanShouldStop) { scanStep(chList, chList.length, found, originalChannel); return; }
             var r = new XMLHttpRequest();
             r.open("GET", "/mux.json", true);
@@ -301,13 +325,13 @@ function scanStep(chList, index, found, originalChannel) {
                                     }
                                 } catch(e) {}
                             }
-                            setTimeout(pollLabel, 1000);
+                            scanSetTimeout(pollLabel, 1000);
                         };
-                        r2.ontimeout = function() { setTimeout(pollLabel, 1000); };
+                        r2.ontimeout = function() { scanSetTimeout(pollLabel, 1000); };
                         r2.onerror = function() { scanStep(chList, index + 1, found, originalChannel); };
                         r2.send();
                     }
-                    setTimeout(pollLabel, 1000);
+                    scanSetTimeout(pollLabel, 1000);
                 } else {
                     scanStep(chList, index + 1, found, originalChannel);
                 }
