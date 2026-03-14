@@ -502,6 +502,9 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
             else if (req.url == "/channel") {
                 success = send_channel(s);
             }
+            else if (req.url == "/scanresults") {
+                success = send_scan_results(s);
+            }
             else if (req.url == "/fftwindowplacement" or req.url == "/enablecoarsecorrector") {
                 send_http_response(s, http_405,
                         "405 Method Not Allowed\r\n" + req.url + " is POST-only");
@@ -562,6 +565,9 @@ bool WebRadioInterface::dispatch_client(Socket&& client)
             }
             else if (req.url == "/enablecoarsecorrector") {
                 success = handle_coarse_corrector_post(s, req.post_data);
+            }
+            else if (req.url == "/scanresults") {
+                success = handle_scan_results_post(s, req.post_data);
             }
             else {
                 cerr << "Could not understand POST request " << req.url << endl;
@@ -1646,4 +1652,25 @@ list<tii_measurement_t> WebRadioInterface::getTiiStats()
     }
 
     return l;
+}
+
+bool WebRadioInterface::send_scan_results(Socket& s)
+{
+    string data;
+    {
+        lock_guard<mutex> lock(scan_mut);
+        data = scan_results.empty() ? "[]" : scan_results;
+    }
+    if (not send_http_response(s, http_ok, "", http_contenttype_json)) return false;
+    ssize_t ret = s.send(data.data(), data.size(), MSG_NOSIGNAL);
+    return ret != -1;
+}
+
+bool WebRadioInterface::handle_scan_results_post(Socket& s, const string& data)
+{
+    {
+        lock_guard<mutex> lock(scan_mut);
+        scan_results = data;
+    }
+    return send_http_response(s, http_ok, "OK");
 }

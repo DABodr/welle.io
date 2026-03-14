@@ -202,6 +202,11 @@ class WebRadioInterface : public RadioControllerInterface {
         std::chrono::time_point<std::chrono::system_clock> time_rx_created;
         std::unique_ptr<RadioReceiver> rx;
 
+        mutable std::mutex scan_mut;
+        std::string scan_results; // JSON array [{ch, label}, ...]
+        bool send_scan_results(Socket& s);
+        bool handle_scan_results_post(Socket& s, const std::string& data);
+
         using SId_t = uint32_t;
         std::map<SId_t, WebProgrammeHandler> phs;
         std::map<SId_t, bool> programmes_being_decoded;

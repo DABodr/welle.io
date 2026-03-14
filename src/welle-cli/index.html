@@ -31,6 +31,11 @@ a {
     text-decoration: none;
     transition: color 0.2s;
 }
+
+abbr {
+    text-decoration: none;
+    cursor: default;
+}
 a:hover {
     color: #9ec5fe;
     text-decoration: underline;
@@ -51,7 +56,7 @@ h2 {
 
 /* ── Layout ───────────────────────────────────────── */
 .app-container {
-    max-width: 1100px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 24px 20px;
 }
@@ -195,14 +200,23 @@ table, th, td {
     border: none;
     border-collapse: collapse;
 }
+/* Wrapper pour scroll horizontal si l'écran est trop étroit */
+.service-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    border: 1px solid #2a2d3a;
+}
 table#servicetable {
     width: 100%;
+    min-width: 900px;
     border-collapse: separate;
     border-spacing: 0;
     border-radius: 12px;
     overflow: hidden;
-    margin-bottom: 16px;
-    border: 1px solid #2a2d3a;
+    margin-bottom: 0;
+    border: none;
 }
 table#servicetable th {
     background: #1e2130;
@@ -338,9 +352,9 @@ button[onclick="stopPlayer()"]::before {
     vertical-align: middle;
 }
 .sls-thumb {
-    width: 70px;
-    height: 70px;
-    object-fit: cover;
+    width: 80px;
+    height: 60px;
+    object-fit: contain;
     border-radius: 6px;
     cursor: pointer;
     border: 1px solid #3a3d50;
@@ -539,6 +553,207 @@ canvas {
     color: #44445a;
 }
 
+/* ── Scan results panel ───────────────────────────── */
+#scanResultsPanel {
+    background: #1a1d28;
+    border: 1px solid #2a2d3a;
+    border-radius: 12px;
+    padding: 14px 20px;
+    margin-bottom: 20px;
+}
+.scan-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+#scanPanelTitle {
+    font-size: 13px;
+    font-weight: 600;
+    color: #8888a0;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+#scanPanelClear {
+    background: none;
+    border: none;
+    color: #55556a;
+    font-size: 14px;
+    padding: 2px 6px;
+    box-shadow: none;
+    cursor: pointer;
+    min-width: 0;
+}
+#scanPanelClear:hover {
+    color: #a0a0b8;
+    background: none;
+    box-shadow: none;
+    transform: none;
+}
+#scanPanelItems {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.scan-panel-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #252836;
+    border: 1px solid #3a3d4a;
+    border-radius: 8px;
+    padding: 8px 14px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    text-decoration: none;
+}
+.scan-panel-item:hover,
+.scan-panel-item.active {
+    background: #2e3145;
+    border-color: #6ea8fe;
+}
+.scan-panel-item.active .scan-panel-ch {
+    color: #22c55e;
+}
+.scan-panel-ch {
+    font-size: 13px;
+    font-weight: 700;
+    color: #6ea8fe;
+}
+.scan-panel-label {
+    font-size: 13px;
+    color: #c0c0d0;
+    white-space: nowrap;
+}
+
+/* ── Scan button ──────────────────────────────────── */
+#scanBtn {
+    background: linear-gradient(135deg, #6ea8fe, #3b82f6);
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(110, 168, 254, 0.2);
+}
+#scanBtn:hover {
+    background: linear-gradient(135deg, #89bcff, #5a9bff);
+    box-shadow: 0 4px 14px rgba(110, 168, 254, 0.35);
+}
+#scanBtn:disabled {
+    background: #2a2d3a;
+    color: #55556a;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+/* ── Scan modal ───────────────────────────────────── */
+.scan-modal {
+    position: fixed;
+    z-index: 200;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+.scan-modal-content {
+    background: #1a1d28;
+    border: 1px solid #2a2d3a;
+    border-radius: 16px;
+    padding: 28px;
+    width: 100%;
+    max-width: 500px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+}
+.scan-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.scan-header h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #f0f0f5;
+}
+#scanStopBtn {
+    background: #2a2d3a;
+    color: #e0e0e6;
+    border: 1px solid #3a3d4a;
+    padding: 7px 14px;
+    font-size: 13px;
+    border-radius: 8px;
+    box-shadow: none;
+}
+#scanStopBtn:hover {
+    background: #3a3d4a;
+    box-shadow: none;
+    transform: none;
+}
+.scan-progress-bar {
+    height: 6px;
+    background: #2a2d3a;
+    border-radius: 3px;
+    overflow: hidden;
+}
+#scanProgressFill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #6ea8fe, #3b82f6);
+    border-radius: 3px;
+    transition: width 0.4s ease;
+}
+#scanProgressText {
+    font-size: 13px;
+    color: #8888a0;
+    margin-top: 6px;
+    text-align: center;
+}
+.scan-results {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.scan-result-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #252836;
+    border: 1px solid #3a3d4a;
+    border-radius: 10px;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+.scan-result-item:hover {
+    background: #2e3145;
+    border-color: #6ea8fe;
+}
+.scan-result-channel {
+    font-size: 15px;
+    font-weight: 700;
+    color: #6ea8fe;
+    min-width: 36px;
+}
+.scan-result-label {
+    font-size: 15px;
+    color: #f0f0f5;
+    flex: 1;
+}
+
 /* ── Footer ───────────────────────────────────────── */
 .app-footer {
     text-align: center;
@@ -589,7 +804,7 @@ canvas {
 .ens-mobile-name { display: none; }
 
 /* ── Advanced controls (desktop: always visible inline) ── */
-.channel-ctrl { display: flex; align-items: center; gap: 8px; }
+.channel-ctrl { display: flex; align-items: stretch; gap: 8px; }
 .advanced-toggle { display: none; }
 .advanced-controls { display: contents; }
 
@@ -667,7 +882,7 @@ canvas {
     }
     .channel-ctrl {
         display: flex;
-        align-items: center;
+        align-items: stretch;
         gap: 8px;
         justify-self: start;
     }
@@ -774,11 +989,18 @@ canvas {
     }
 
     /* ── Services table: CARD LAYOUT ─────────────── */
+    .service-table-wrapper {
+        overflow-x: visible;
+        border: none;
+        border-radius: 0;
+        margin-bottom: 0;
+    }
     #ensembleinfo table {
         display: flex;
         flex-direction: column;
         align-items: stretch;
         width: 100%;
+        min-width: 0;
         box-sizing: border-box;
         border: none;
         overflow: visible;
@@ -800,6 +1022,7 @@ canvas {
         padding: 14px;
         margin-bottom: 10px;
         gap: 8px;
+        overflow: hidden;
     }
     #ensembleinfo table tr:hover {
         background: #1e2130;
@@ -827,15 +1050,15 @@ canvas {
     }
     /* Col 13: SLS thumbnail - full width at bottom */
     #ensembleinfo table td:nth-child(13) {
-        flex: 1 1 100%;
         order: 4;
-        display: flex;
-        justify-content: center;
+        width: 100%;
+        box-sizing: border-box;
     }
     #ensembleinfo table td:nth-child(13) .sls-thumb {
-        width: 100%;
-        height: auto;
-        max-height: 180px;
+        display: block;
+        width: 160px;
+        height: 120px;
+        object-fit: contain;
         border-radius: 8px;
     }
     /* Col 3: Bitrate - hidden on mobile */
@@ -844,11 +1067,14 @@ canvas {
     }
     /* Col 9: DLS - full width below */
     #ensembleinfo table td:nth-child(9) {
-        flex: 1 1 100%;
+        order: 3;
+        width: 100%;
+        box-sizing: border-box;
+        min-width: 0;
         font-size: 13px;
         color: #b0b0c0;
-        order: 3;
-        min-height: 0;
+        word-break: break-word;
+        overflow-wrap: anywhere;
     }
     /* Hide non-essential columns:
        col2=SId, col4=CU, col5=Prot, col6=Tech, col7=PTy, col8=Lang, col10=Errors, col11=AudioLevel */
@@ -885,6 +1111,45 @@ canvas {
     button[onclick^="showSlide"] {
         padding: 8px 14px;
         font-size: 13px;
+    }
+
+    /* ── Mobile scan results panel ───────────────── */
+    #scanResultsPanel {
+        padding: 14px 16px;
+    }
+    #scanPanelItems {
+        flex-direction: column;
+    }
+    .scan-panel-item {
+        padding: 12px 16px;
+    }
+    .scan-panel-ch {
+        font-size: 15px;
+    }
+    .scan-panel-label {
+        font-size: 15px;
+        white-space: normal;
+    }
+
+    /* ── Mobile scan modal ───────────────────────── */
+    .scan-modal {
+        align-items: flex-end;
+        padding: 0;
+    }
+    .scan-modal-content {
+        border-radius: 16px 16px 0 0;
+        max-width: 100%;
+        max-height: 85vh;
+        padding: 24px 20px;
+    }
+    .scan-result-item {
+        padding: 14px 16px;
+    }
+    .scan-result-channel {
+        font-size: 16px;
+    }
+    .scan-result-label {
+        font-size: 16px;
     }
 
     /* ── Mobile graph blocks ─────────────────────── */
@@ -933,6 +1198,7 @@ canvas {
                         <label for="channelselector">Channel</label>
                         <div class="channel-ctrl">
                             <select id="channelselector" name="channel"></select>
+                            <button type="button" id="scanBtn" title="Scan all DAB channels">⊕ Scan</button>
                             <button type="button" class="advanced-toggle" id="advancedToggle" title="Réglages avancés">Param. ⚙</button>
                         </div>
                     </div>
@@ -948,6 +1214,14 @@ canvas {
                     </div>
                 </div>
                 <div id="mux-info"></div>
+            </div>
+
+            <div id="scanResultsPanel" style="display:none">
+                <div class="scan-panel-header">
+                    <span id="scanPanelTitle"></span>
+                    <button type="button" id="scanPanelClear">✕</button>
+                </div>
+                <div id="scanPanelItems"></div>
             </div>
 
             <div id="ensembleinfo"></div>
@@ -981,6 +1255,22 @@ canvas {
                 <!--<source src="/mp3/0x4f57" type="audio/mpeg"> -->
             </audio>
         </div>
+        <div id="scanModal" class="scan-modal" style="display:none">
+            <div class="scan-modal-content">
+                <div class="scan-header">
+                    <h2 id="scanTitle">Channel Scan</h2>
+                    <button type="button" id="scanStopBtn">✕ Stop</button>
+                </div>
+                <div class="scan-progress" id="scanProgressZone">
+                    <div class="scan-progress-bar">
+                        <div id="scanProgressFill"></div>
+                    </div>
+                    <div id="scanProgressText">Starting…</div>
+                </div>
+                <ul id="scanResults" class="scan-results"></ul>
+            </div>
+        </div>
+
         <div id="mySlideModal" class="slide-modal">
             <img class="slide-modal-content" id="slideimg">
             <div id="slidecaption">

@@ -97,6 +97,7 @@ window.onload = function() {
     ch.onchange = function() {
         var channel = document.getElementById("channelselector").value;
         currentPlayingSid = null;
+        updateScanPanel(channel);
         var xhr = new XMLHttpRequest();
         xhr.open("POST", '/channel', true);
         xhr.setRequestHeader("Content-type", "text/plain");
@@ -152,6 +153,258 @@ window.onload = function() {
         };
     }
 
+// ── Channel scan ────────────────────────────────────
+var scanRunning = false;
+var scanShouldStop = false;
+
+// Wrapper setTimeout qui résiste au throttling arrière-plan mobile :
+// si la page redevient visible alors qu'un timer est en attente, on
+// l'exécute immédiatement plutôt d'attendre le timer gelé.
+var _scanTimerId = null;
+var _scanTimerFn = null;
+function scanSetTimeout(fn, delay) {
+    if (_scanTimerId) clearTimeout(_scanTimerId);
+    _scanTimerFn = fn;
+    _scanTimerId = setTimeout(function() {
+        _scanTimerId = null;
+        _scanTimerFn = null;
+        fn();
+    }, delay);
+}
+document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'visible' && scanRunning && _scanTimerFn) {
+        clearTimeout(_scanTimerId);
+        var fn = _scanTimerFn;
+        _scanTimerId = null;
+        _scanTimerFn = null;
+        fn();
+    }
+});
+var scanModal = document.getElementById("scanModal");
+var scanResults = document.getElementById("scanResults");
+var scanProgressFill = document.getElementById("scanProgressFill");
+var scanProgressText = document.getElementById("scanProgressText");
+var scanTitle = document.getElementById("scanTitle");
+var scanBtn = document.getElementById("scanBtn");
+var scanStopBtn = document.getElementById("scanStopBtn");
+var scanResultsPanel = document.getElementById("scanResultsPanel");
+var scanPanelItems = document.getElementById("scanPanelItems");
+var scanPanelTitle = document.getElementById("scanPanelTitle");
+var scanFoundMux = []; // [{ch, label}]
+
+document.getElementById("scanPanelClear").onclick = function() {
+    scanResultsPanel.style.display = "none";
+    scanFoundMux = [];
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/scanresults", true);
+    xhr.setRequestHeader("Content-type", "application/json");
+    xhr.send("[]");
+};
+
+function refreshScanResultsFromServer() {
+    if (scanRunning) return;
+    var r = new XMLHttpRequest();
+    r.open("GET", "/scanresults", true);
+    r.timeout = 2000;
+    r.onreadystatechange = function() {
+        if (r.readyState !== 4 || r.status !== 200) return;
+        try {
+            var arr = JSON.parse(r.responseText);
+            if (!Array.isArray(arr) || arr.length === 0) return;
+            var changed = false;
+            arr.forEach(function(m) {
+                if (!scanFoundMux.some(function(x) { return x.ch === m.ch; })) {
+                    scanFoundMux.push(m);
+                    changed = true;
+                }
+            });
+            if (changed) {
+                var currentCh = document.getElementById("channelselector").value;
+                updateScanPanel(currentCh);
+            }
+        } catch(e) {}
+    };
+    r.send();
+}
+setInterval(refreshScanResultsFromServer, 3000);
+refreshScanResultsFromServer();
+
+function updateScanPanel(currentCh) {
+    if (scanFoundMux.length === 0) { scanResultsPanel.style.display = "none"; return; }
+    scanPanelTitle.textContent = scanFoundMux.length + " mux found";
+    scanPanelItems.innerHTML = "";
+    scanFoundMux.forEach(function(m) {
+        var el = document.createElement("div");
+        el.className = "scan-panel-item" + (m.ch === currentCh ? " active" : "");
+        el.innerHTML = '<span class="scan-panel-ch">' + m.ch + '</span>' +
+                       '<span class="scan-panel-label">' + m.label + '</span>';
+        el.onclick = function() {
+            postChannel(m.ch, function() {});
+            document.getElementById("channelselector").value = m.ch;
+            document.querySelectorAll(".scan-panel-item").forEach(function(i) { i.classList.remove("active"); });
+            el.classList.add("active");
+        };
+        scanPanelItems.appendChild(el);
+    });
+    scanResultsPanel.style.display = "";
+}
+
+function postChannel(ch, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/channel", true);
+    xhr.setRequestHeader("Content-type", "text/plain");
+    xhr.timeout = 8000;
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) callback();
+    };
+    xhr.ontimeout = callback;
+    xhr.onerror = callback;
+    xhr.send(ch);
+}
+
+function scanStep(chList, index, found, originalChannel) {
+    if (scanShouldStop || index >= chList.length) {
+        // Scan done or stopped — restore original channel
+        postChannel(originalChannel, function() {
+            document.getElementById("channelselector").value = originalChannel;
+            updateScanPanel(originalChannel);
+        });
+        scanRunning = false;
+        scanBtn.disabled = false;
+        document.getElementById("channelselector").disabled = false;
+        scanProgressFill.style.width = "100%";
+        if (scanShouldStop) {
+            scanTitle.textContent = "Scan stopped — " + found + " mux found";
+        } else {
+            scanTitle.textContent = "Scan complete — " + found + " mux found";
+        }
+        scanProgressText.textContent = "";
+        scanStopBtn.textContent = "✕ Close";
+        // Auto-close modal after 1.5s if scan completed fully
+        if (!scanShouldStop) {
+            setTimeout(function() { scanModal.style.display = "none"; }, 1500);
+        }
+        return;
+    }
+
+    var ch = chList[index];
+    var pct = Math.round(index / chList.length * 100);
+    scanProgressFill.style.width = pct + "%";
+    scanProgressText.textContent = "Scanning " + ch + "… (" + (index + 1) + "/" + chList.length + ")";
+
+    postChannel(ch, function() {
+        // Wait for sync (3s)
+        scanSetTimeout(function() {
+            if (scanShouldStop) { scanStep(chList, chList.length, found, originalChannel); return; }
+            var r = new XMLHttpRequest();
+            r.open("GET", "/mux.json", true);
+            r.timeout = 3000;
+            r.onreadystatechange = function() {
+                if (r.readyState !== 4) return;
+                var synced = false;
+                if (r.status === 200) {
+                    try {
+                        var data = JSON.parse(r.responseText);
+                        synced = !!(data.demodulator && data.demodulator.synced);
+                    } catch(e) {}
+                }
+                if (synced && !scanShouldStop) {
+                    // Signal detected — poll mux.json every second for up to 8s to get ensemble name
+                    scanProgressText.textContent = "Signal on " + ch + ", reading mux name…";
+                    var pollAttempts = 0;
+                    var maxAttempts = 20;
+                    function pollLabel() {
+                        if (scanShouldStop || pollAttempts >= maxAttempts) {
+                            scanStep(chList, index + 1, found, originalChannel);
+                            return;
+                        }
+                        pollAttempts++;
+                        scanProgressText.textContent = "Signal on " + ch +
+                            ", reading mux name… (" + pollAttempts + "/" + maxAttempts + "s)";
+                        var r2 = new XMLHttpRequest();
+                        r2.open("GET", "/mux.json", true);
+                        r2.timeout = 2000;
+                        r2.onreadystatechange = function() {
+                            if (r2.readyState !== 4) return;
+                            if (r2.status === 200) {
+                                try {
+                                    var d2 = JSON.parse(r2.responseText);
+                                    var rawLabel = (d2.ensemble && d2.ensemble.label) ?
+                                        (d2.ensemble.label.fig2label || d2.ensemble.label.label || "") : "";
+                                    var label = rawLabel.replace(/\x00/g, '').trim();
+                                    if (label.length > 0) {
+                                        var newFound = found + 1;
+                                        scanFoundMux.push({ch: ch, label: label});
+                                        var xhrPush = new XMLHttpRequest();
+                                        xhrPush.open("POST", "/scanresults", true);
+                                        xhrPush.setRequestHeader("Content-type", "application/json");
+                                        xhrPush.send(JSON.stringify(scanFoundMux));
+                                        var li = document.createElement("li");
+                                        li.className = "scan-result-item";
+                                        li.innerHTML = '<span class="scan-result-channel">' + ch + '</span>' +
+                                                       '<span class="scan-result-label">' + label + '</span>';
+                                        (function(channel) {
+                                            li.onclick = function() {
+                                                postChannel(channel, function() {});
+                                                document.getElementById("channelselector").value = channel;
+                                                scanModal.style.display = "none";
+                                                scanRunning = false;
+                                                scanShouldStop = true;
+                                                scanBtn.disabled = false;
+                                                document.getElementById("channelselector").disabled = false;
+                                                updateScanPanel(channel);
+                                            };
+                                        })(ch);
+                                        scanResults.appendChild(li);
+                                        scanStep(chList, index + 1, newFound, originalChannel);
+                                        return;
+                                    }
+                                } catch(e) {}
+                            }
+                            scanSetTimeout(pollLabel, 1000);
+                        };
+                        r2.ontimeout = function() { scanSetTimeout(pollLabel, 1000); };
+                        r2.onerror = function() { scanStep(chList, index + 1, found, originalChannel); };
+                        r2.send();
+                    }
+                    scanSetTimeout(pollLabel, 1000);
+                } else {
+                    scanStep(chList, index + 1, found, originalChannel);
+                }
+            };
+            r.ontimeout = function() { scanStep(chList, index + 1, found, originalChannel); };
+            r.onerror = function() { scanStep(chList, index + 1, found, originalChannel); };
+            r.send();
+        }, 3000);
+    });
+}
+
+scanBtn.onclick = function() {
+    if (scanRunning) return;
+    scanRunning = true;
+    scanShouldStop = false;
+    scanFoundMux = [];
+    scanResults.innerHTML = "";
+    scanTitle.textContent = "Channel Scan";
+    scanProgressFill.style.width = "0%";
+    scanProgressText.textContent = "Starting…";
+    scanStopBtn.textContent = "✕ Stop";
+    scanModal.style.display = "flex";
+    scanBtn.disabled = true;
+    document.getElementById("channelselector").disabled = true;
+
+    var originalChannel = document.getElementById("channelselector").value;
+    scanStep(channels, 0, 0, originalChannel);
+};
+
+scanStopBtn.onclick = function() {
+    if (scanRunning) {
+        scanShouldStop = true;
+    } else {
+        scanModal.style.display = "none";
+    }
+};
+
 function refreshChannel() {
     var r = new XMLHttpRequest();
     r.onreadystatechange = function () {
@@ -204,7 +457,7 @@ function muxHeaderTemplate() {
 }
 
 function ensembleInfoTemplate() {
-    var html = '<table id="servicetable">';
+    var html = '<div class="service-table-wrapper"><table id="servicetable">';
     html += '<tr><th>FIG1 Label (Short label)<br>FIG2 Label</th> ';
     html += '<th><abbr title="Service ID">SId</abbr></th> ';
     html += '<th>Bitrate</th> <th><abbr title="Start CU Address, used CUs">CU info</abbr></th> ';
@@ -214,7 +467,7 @@ function ensembleInfoTemplate() {
     html += '<th><abbr title="Service language, Subchannel language">Languages</abbr></th> <th id="dls">DLS</th>';
     html += '<th><abbr title="Frame, Reed Solomon, AAC errors">Errors</abbr></th>';
     html += '<th><abbr title="red: right, black: left">Audio Level</abbr></th> <th></th><th></th></tr>';
-    html += '${services}</table>';
+    html += '${services}</table></div>';
     return html;
 }
 
